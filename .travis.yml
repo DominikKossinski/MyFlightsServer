@@ -2,7 +2,7 @@ language: java
 sudo: true
 dist: xenial
 jdk:
-  - openjdk8
+  - openjdk12
 services:
   - mysql
 #addons:
