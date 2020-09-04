@@ -19,6 +19,7 @@ before_install:
   #  - sudo service mysql restart
   #  - mysql -u root -ppassword < dbcreate.sql
   - chmod +x gradlew
+  - chmod +x gradle/wrapper/gradle-wrapper.jar
 install:
   - "./gradlew build --stacktrace --info"
 notifications:
