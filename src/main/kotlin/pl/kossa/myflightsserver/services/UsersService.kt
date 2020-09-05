@@ -14,5 +14,6 @@ class UsersService {
 
     fun getUserByEmail(email: String) = repository.findOneByEmail(email)
 
-    fun createUser(user: User) = repository.save(user)
+    fun saveUser(user: User) = repository.save(user)
+
 }
