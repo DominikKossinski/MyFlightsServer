@@ -1,5 +1,6 @@
 package pl.kossa.myflightsserver.data.models
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -25,5 +26,6 @@ data class Airplane(
         val imageUrl: String?,
 
         @Column(name = "UserId", columnDefinition = "varchar")
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         val userId: String
 )

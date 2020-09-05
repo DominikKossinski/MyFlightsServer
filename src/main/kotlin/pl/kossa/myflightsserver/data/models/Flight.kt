@@ -1,5 +1,6 @@
 package pl.kossa.myflightsserver.data.models
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.*
 import javax.persistence.*
 
@@ -26,6 +27,7 @@ data class Flight(
         val endDate: Date,
 
         @Column(name = "UserId", columnDefinition = "varchar")
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         val userId: String,
 
         @OneToOne(cascade = [CascadeType.ALL])

@@ -9,5 +9,6 @@ interface FlightsRepository : CrudRepository<Flight, Int> {
     @Query("FROM Flight WHERE userId = ?1")
     fun findByUserId(uid: String): Iterable<Flight>
 
-    fun findOneByFlightId(flightId: Int): Flight?
+    @Query("FROM Flight WHERE flightId = ?1 AND userId = ?2")
+    fun findOneByFlightId(flightId: Int, uid: String): Flight?
 }

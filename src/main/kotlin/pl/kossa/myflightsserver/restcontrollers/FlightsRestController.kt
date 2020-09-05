@@ -18,7 +18,6 @@ import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import pl.kossa.myflightsserver.exceptions.ForbiddenException
 import pl.kossa.myflightsserver.services.AirplanesService
-import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.RunwaysService
 
@@ -34,9 +33,6 @@ class FlightsRestController : BaseRestController() {
 
     @Autowired
     lateinit var runwaysService: RunwaysService
-
-    @Autowired
-    lateinit var airportsService: AirportsService
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -59,12 +55,12 @@ class FlightsRestController : BaseRestController() {
     ])
     fun getFlightById(@PathVariable("flightId") flightId: Int): ResponseEntity<Flight> {
         val user = getUserDetails()
-        val flight = flightsService.getFlightById(flightId)
+        val flight = flightsService.getFlightById(flightId, user.uid)
         if (flight.userId != user.uid) throw ForbiddenException()
         return ResponseEntity.ok(flight)
     }
 
-    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = [
         ApiResponse(responseCode = "201"),
@@ -78,7 +74,7 @@ class FlightsRestController : BaseRestController() {
         flightsService.saveFlight(flight)
     }
 
-    @PutMapping("/{flightId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping("/{flightId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponses(value = [
         ApiResponse(responseCode = "204"),
@@ -88,7 +84,7 @@ class FlightsRestController : BaseRestController() {
     ])
     fun putFLight(@PathVariable("flightId") flightId: Int, @RequestBody flightRequest: FlightRequest) {
         val user = getUserDetails()
-        val flight = flightsService.getFlightById(flightId)
+        val flight = flightsService.getFlightById(flightId, user.uid)
         if (flight.userId != user.uid) throw ForbiddenException()
         val updatedFlight = validateFlightRequest(flightRequest, user, flightId)
         flightsService.saveFlight(updatedFlight)
@@ -103,12 +99,13 @@ class FlightsRestController : BaseRestController() {
         ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
     ])
     fun deleteFlight(@PathVariable("flightId") flightId: Int) {
-        flightsService.getFlightById(flightId)
+        val user = getUserDetails()
+        flightsService.getFlightById(flightId, user.uid)
         flightsService.deleteFlightById(flightId)
     }
 
     private fun validateFlightRequest(flightRequest: FlightRequest, user: UserDetails, flightId: Int = 0): Flight {
-        val airplane = airplanesService.getAirplaneById(flightRequest.airplaneId)
+        val airplane = airplanesService.getAirplaneById(flightRequest.airplaneId, user.uid)
         if (airplane.userId != user.uid) throw ForbiddenException()
         val arrivalRunway = runwaysService.getRunwayById(flightRequest.arrivalRunwayId)
         if (arrivalRunway.airport.userId != user.uid) throw ForbiddenException()
