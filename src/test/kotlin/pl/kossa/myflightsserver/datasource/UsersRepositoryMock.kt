@@ -12,6 +12,8 @@ class UsersRepositoryMock : UsersRepository {
 
     override fun <S : User?> save(entity: S): S {
         (entity as? User)?.let {
+            val found = users.find { it.userId == entity.userId }
+            if (found != null) users.remove(found)
             users.add(it)
         }
         return entity
@@ -20,6 +22,8 @@ class UsersRepositoryMock : UsersRepository {
     override fun <S : User?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
         entities.forEach { entity ->
             (entity as? User)?.let {
+                val found = users.find { it.userId == entity.userId }
+                if (found != null) users.remove(found)
                 users.add(it)
             }
         }
