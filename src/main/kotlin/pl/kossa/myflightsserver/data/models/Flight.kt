@@ -25,6 +25,9 @@ data class Flight(
         @Column(name = "EndDate", columnDefinition = "datetime")
         val endDate: Date,
 
+        @Column(name = "UserId", columnDefinition = "varchar")
+        val userId: String,
+
         @OneToOne(cascade = [CascadeType.ALL])
         @JoinColumn(name = "AirplaneId", referencedColumnName = "AirplaneId")
         val airplane: Airplane,
