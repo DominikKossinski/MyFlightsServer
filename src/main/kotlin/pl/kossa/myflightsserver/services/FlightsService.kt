@@ -14,11 +14,12 @@ class FlightsService {
 
     fun getFlightsByUserId(uid: String) = repository.findByUserId(uid).toList()
 
-    fun getFlightById(flightId: Int) = repository.findOneByFlightId(flightId)
+    fun getFlightById(flightId: Int, uid: String) = repository.findOneByFlightId(flightId, uid)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
+
+    fun saveFlight(flight: Flight) = repository.save(flight)
 
     fun deleteFlightById(flightId: Int) = repository.deleteById(flightId)
 
-    fun saveFlight(flight: Flight) = repository.save(flight)
 
 }
