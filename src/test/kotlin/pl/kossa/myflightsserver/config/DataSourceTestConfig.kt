@@ -6,10 +6,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import pl.kossa.myflightsserver.datasource.AirplanesRepositoryMock
+import pl.kossa.myflightsserver.datasource.AirportsRepositoryMock
 import pl.kossa.myflightsserver.datasource.UsersRepositoryMock
 import pl.kossa.myflightsserver.repositories.AirplanesRepository
+import pl.kossa.myflightsserver.repositories.AirportsRepository
 import pl.kossa.myflightsserver.repositories.UsersRepository
 import pl.kossa.myflightsserver.services.AirplanesService
+import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.UsersService
 import javax.sql.DataSource
 
@@ -42,6 +45,16 @@ class DataSourceTestConfig {
     @Bean
     fun usersService(): UsersService {
         return UsersService()
+    }
+
+    @Bean
+    fun airportsRepository(): AirportsRepository {
+        return AirportsRepositoryMock()
+    }
+
+    @Bean
+    fun airportsService(): AirportsService {
+        return AirportsService()
     }
 
 
