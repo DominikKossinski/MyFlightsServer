@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Users` (
   `Email` VARCHAR(45) NOT NULL,
   `ImageUrl` VARCHAR(200) NULL,
   PRIMARY KEY (`UserId`),
-  UNIQUE INDEX `Email_UNIQUE` (`Email` ASC))
+  UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE)
 ENGINE = InnoDB;
 
 
@@ -41,7 +41,14 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Airplanes` (
   `MaxSpeed` INT NULL,
   `Weight` INT NULL,
   `ImageUrl` VARCHAR(200) NULL,
-  PRIMARY KEY (`AirplaneId`))
+  `UserId` VARCHAR(28) NOT NULL,
+  PRIMARY KEY (`AirplaneId`, `UserId`),
+  INDEX `fk_Airplanes_Users1_idx` (`UserId` ASC) VISIBLE,
+  CONSTRAINT `fk_Airplanes_Users1`
+    FOREIGN KEY (`UserId`)
+    REFERENCES `myflights`.`Users` (`UserId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -58,12 +65,19 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Airports` (
   `TowerFrequency` VARCHAR(45) NULL,
   `GroundFrequency` VARCHAR(45) NULL,
   `ImageUrl` VARCHAR(45) NULL,
-  PRIMARY KEY (`AirportId`))
+  `UserId` VARCHAR(28) NOT NULL,
+  PRIMARY KEY (`AirportId`, `UserId`),
+  INDEX `fk_Airports_Users1_idx` (`UserId` ASC) VISIBLE,
+  CONSTRAINT `fk_Airports_Users1`
+    FOREIGN KEY (`UserId`)
+    REFERENCES `myflights`.`Users` (`UserId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `myflights`.`Runway`
+-- Table `myflights`.`Runways`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `myflights`.`Runways` ;
 
@@ -76,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Runways` (
   `ImageUrl` VARCHAR(45) NULL,
   `AirportId` INT NOT NULL,
   PRIMARY KEY (`RunwayId`, `AirportId`),
-  INDEX `fk_Runway_Airport1_idx` (`AirportId` ASC),
+  INDEX `fk_Runway_Airport1_idx` (`AirportId` ASC) VISIBLE,
   CONSTRAINT `fk_Runway_Airport1`
     FOREIGN KEY (`AirportId`)
     REFERENCES `myflights`.`Airports` (`AirportId`)
@@ -95,8 +109,8 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Flights` (
   `Note` VARCHAR(500) NULL,
   `Distance` INT NULL,
   `ImageUrl` VARCHAR(200) NULL,
-  `EndDate` DATETIME NOT NULL,
   `StartDate` DATETIME NOT NULL,
+  `EndDate` DATETIME NOT NULL,
   `UserId` VARCHAR(28) NOT NULL,
   `AirplaneId` INT NOT NULL,
   `DepartureRunwayId` INT NOT NULL,
@@ -104,10 +118,10 @@ CREATE TABLE IF NOT EXISTS `myflights`.`Flights` (
   `ArrivalRunwayId` INT NOT NULL,
   `ArrivalAirportId` INT NOT NULL,
   PRIMARY KEY (`FlightId`, `UserId`, `AirplaneId`, `DepartureRunwayId`, `DepartureAirportId`, `ArrivalRunwayId`, `ArrivalAirportId`),
-  INDEX `fk_Flight_Users_idx` (`UserId` ASC),
-  INDEX `fk_Flight_Airplanes1_idx` (`AirplaneId` ASC),
-  INDEX `fk_Flight_Runway1_idx` (`DepartureRunwayId` ASC, `DepartureAirportId` ASC),
-  INDEX `fk_Flight_Runway2_idx` (`ArrivalRunwayId` ASC, `ArrivalAirportId` ASC),
+  INDEX `fk_Flight_Users_idx` (`UserId` ASC) VISIBLE,
+  INDEX `fk_Flight_Airplanes1_idx` (`AirplaneId` ASC) VISIBLE,
+  INDEX `fk_Flight_Runway1_idx` (`DepartureRunwayId` ASC, `DepartureAirportId` ASC) VISIBLE,
+  INDEX `fk_Flight_Runway2_idx` (`ArrivalRunwayId` ASC, `ArrivalAirportId` ASC) VISIBLE,
   CONSTRAINT `fk_Flight_Users`
     FOREIGN KEY (`UserId`)
     REFERENCES `myflights`.`Users` (`UserId`)

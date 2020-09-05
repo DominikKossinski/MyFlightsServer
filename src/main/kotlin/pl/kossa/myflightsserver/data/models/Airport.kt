@@ -28,5 +28,8 @@ data class Airport(
         val groundFrequency: String?,
 
         @Column(name = "ImageUrl", columnDefinition = "varchar")
-        val imageUrl: String?
+        val imageUrl: String?,
+
+        @Column(name = "UserId", columnDefinition = "varchar")
+        val userId: String
 )
