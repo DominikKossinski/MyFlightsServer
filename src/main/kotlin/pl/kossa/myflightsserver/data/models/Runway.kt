@@ -13,7 +13,7 @@ data class Runway(
         @Column(name = "Name", columnDefinition = "varchar")
         val name: String,
 
-        @Column(name = "Length", columnDefinition = "varchar")
+        @Column(name = "Length", columnDefinition = "int")
         val length: Int,
 
         @Column(name = "Heading", columnDefinition = "int")

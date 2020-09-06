@@ -81,21 +81,22 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `myflights`.`Runways` ;
 
-CREATE TABLE IF NOT EXISTS `myflights`.`Runways` (
-  `RunwayId` INT NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(45) NOT NULL,
-  `Length` VARCHAR(45) NOT NULL,
-  `Heading` INT NOT NULL,
-  `ILSFrequency` VARCHAR(45) NULL,
-  `ImageUrl` VARCHAR(45) NULL,
-  `AirportId` INT NOT NULL,
-  PRIMARY KEY (`RunwayId`, `AirportId`),
-  INDEX `fk_Runway_Airport1_idx` (`AirportId` ASC) VISIBLE,
-  CONSTRAINT `fk_Runway_Airport1`
-    FOREIGN KEY (`AirportId`)
-    REFERENCES `myflights`.`Airports` (`AirportId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+CREATE TABLE IF NOT EXISTS `myflights`.`Runways`(
+                                                    `RunwayId`     INT          NOT NULL AUTO_INCREMENT,
+                                                    `Name`         VARCHAR(45)  NOT NULL,
+                                                    `Length`       INT          NOT NULL,
+                                                    `Heading`      INT          NOT NULL,
+                                                    `ILSFrequency` VARCHAR(45)  NULL,
+                                                    `ImageUrl`     VARCHAR(200) NULL,
+                                                    `AirportId`    INT          NOT NULL,
+                                                    PRIMARY KEY (`RunwayId`, `AirportId`),
+                                                    INDEX `fk_Runway_Airport1_idx` (`AirportId` ASC) VISIBLE,
+                                                    CONSTRAINT `fk_Runway_Airport1`
+                                                        FOREIGN KEY (`AirportId`)
+                                                            REFERENCES `myflights`.`Airports` (`AirportId`)
+                                                            ON DELETE NO ACTION
+                                                            ON UPDATE NO ACTION
+)
 ENGINE = InnoDB;
 
 

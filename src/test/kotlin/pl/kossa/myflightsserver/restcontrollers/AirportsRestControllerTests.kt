@@ -25,7 +25,7 @@ class AirportsRestControllerTests {
 
     @Test
     @Order(1)
-    fun noAirplanesOnStart() {
+    fun noAirportsOnStart() {
         val response = airportRestController.getUserAirports()
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body?.isEmpty() ?: false)
@@ -33,7 +33,7 @@ class AirportsRestControllerTests {
 
     @Test
     @Order(2)
-    fun airplaneNotFound() {
+    fun airportNotFound() {
         assertThrows<NotFoundException> {
             airportRestController.getAirportById(1)
         }
@@ -41,13 +41,13 @@ class AirportsRestControllerTests {
 
     @Test
     @Order(3)
-    fun postAirplane() {
+    fun postAirport() {
         airportRestController.postAirport(AirportRequest(airportToPost.name, airportToPost.city, airportToPost.shortcut, airportToPost.towerFrequency, airportToPost.groundFrequency, airportToPost.imageUrl))
     }
 
     @Test
     @Order(4)
-    fun getAirplane() {
+    fun getAirport() {
         val response = airportRestController.getAirportById(0)
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body != null)
@@ -57,7 +57,7 @@ class AirportsRestControllerTests {
 
     @Test
     @Order(5)
-    fun getUserAirplanes() {
+    fun getUserAirport() {
         val response = airportRestController.getUserAirports()
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body != null)
@@ -68,7 +68,7 @@ class AirportsRestControllerTests {
 
     @Test
     @Order(6)
-    fun putAirplane() {
+    fun putAirport() {
         airportRestController.putAirport(
                 airportToPut.airportId,
                 AirportRequest(airportToPut.name, airportToPut.city, airportToPut.shortcut, airportToPut.towerFrequency, airportToPut.groundFrequency, airportToPut.imageUrl)
