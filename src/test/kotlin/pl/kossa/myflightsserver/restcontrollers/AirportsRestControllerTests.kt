@@ -20,8 +20,8 @@ class AirportsRestControllerTests {
     @Autowired
     private lateinit var airportRestController: AirportsRestController
 
-    private val airportToPost = Airport(0, "Okencie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
-    private val airportToPut = Airport(0, "Katowice", "Ktowice", "EPKT", "118.50", "121.00", null, "1")
+    private val airportToPost = Airport(1, "Okencie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
+    private val airportToPut = Airport(1, "Katowice", "Ktowice", "EPKT", "118.50", "121.00", null, "1")
 
     @Test
     @Order(1)
@@ -48,7 +48,7 @@ class AirportsRestControllerTests {
     @Test
     @Order(4)
     fun getAirport() {
-        val response = airportRestController.getAirportById(0)
+        val response = airportRestController.getAirportById(airportToPost.airportId)
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body != null)
         val airport = response.body!!
@@ -78,6 +78,15 @@ class AirportsRestControllerTests {
         assert(response.body != null)
         val airport = response.body!!
         checkAirports(airport, airportToPut)
+    }
+
+    @Test
+    @Order(7)
+    fun deleteAirport() {
+        airportRestController.deleteAirport(airportToPost.airportId)
+        assertThrows<NotFoundException> {
+            airportRestController.deleteAirport(airportToPost.airportId)
+        }
     }
 
     private fun checkAirports(airport: Airport, checkAirport: Airport) {

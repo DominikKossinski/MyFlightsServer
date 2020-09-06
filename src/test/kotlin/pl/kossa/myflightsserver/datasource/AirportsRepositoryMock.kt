@@ -14,9 +14,11 @@ class AirportsRepositoryMock : AirportsRepository {
 
     override fun <S : Airport?> save(entity: S): S {
         (entity as? Airport)?.let {
-            val found = airports.find { it.airportId == entity.airportId }
-            if (found != null) airports.remove(found)
-            airports.add(it)
+            if (entity.airportId > 0) {
+                val found = airports.find { it.airportId == entity.airportId }
+                if (found != null) airports.remove(found)
+            }
+            airports.add(it.copy(airportId = airports.size + 1))
         }
         return entity
     }
@@ -24,9 +26,11 @@ class AirportsRepositoryMock : AirportsRepository {
     override fun <S : Airport?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
         entities.forEach { entity ->
             (entity as? Airport)?.let {
-                val found = airports.find { it.airportId == entity.airportId }
-                if (found != null) airports.remove(found)
-                airports.add(it)
+                if (entity.airportId > 0) {
+                    val found = airports.find { it.airportId == entity.airportId }
+                    if (found != null) airports.remove(found)
+                }
+                airports.add(it.copy(airportId = airports.size + 1))
             }
         }
         return entities

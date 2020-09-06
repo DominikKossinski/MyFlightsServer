@@ -14,9 +14,12 @@ class AirplanesRepositoryMock : AirplanesRepository {
 
     override fun <S : Airplane?> save(entity: S): S {
         (entity as? Airplane)?.let {
-            val found = airplanes.find { it.airplaneId == entity.airplaneId }
-            if (found != null) airplanes.remove(found)
-            airplanes.add(it)
+            if (entity.airplaneId > 0) {
+
+                val found = airplanes.find { it.airplaneId == entity.airplaneId }
+                if (found != null) airplanes.remove(found)
+            }
+            airplanes.add(it.copy(airplaneId = airplanes.size + 1))
         }
         return entity
     }
@@ -24,9 +27,11 @@ class AirplanesRepositoryMock : AirplanesRepository {
     override fun <S : Airplane?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
         entities.forEach {
             (it as? Airplane)?.let { airplane ->
-                val found = airplanes.find { it.airplaneId == airplane.airplaneId }
-                if (found != null) airplanes.remove(found)
-                airplanes.add(airplane)
+                if (airplane.airplaneId > 0) {
+                    val found = airplanes.find { it.airplaneId == airplane.airplaneId }
+                    if (found != null) airplanes.remove(found)
+                }
+                airplanes.add(airplane.copy(airplaneId = airplanes.size + 1))
             }
         }
         return entities
