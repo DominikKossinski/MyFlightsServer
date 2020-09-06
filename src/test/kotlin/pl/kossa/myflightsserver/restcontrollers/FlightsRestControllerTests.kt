@@ -150,8 +150,6 @@ class FlightsRestControllerTests {
         assert(flight.note == checkFlight.note)
         assert(flight.distance == checkFlight.distance)
         assert(flight.imageUrl == checkFlight.imageUrl)
-        assert(flight.startDate == checkFlight.startDate)
-        assert(flight.endDate == checkFlight.endDate)
         assert(flight.userId == checkFlight.userId)
         assert(flight.airplane == checkFlight.airplane)
         assert(flight.departureRunway == checkFlight.departureRunway)
