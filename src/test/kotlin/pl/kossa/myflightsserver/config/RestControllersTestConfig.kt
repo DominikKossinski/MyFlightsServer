@@ -3,10 +3,7 @@ package pl.kossa.myflightsserver.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import pl.kossa.myflightsserver.restcontrollers.AirplanesRestController
-import pl.kossa.myflightsserver.restcontrollers.AirportsRestController
-import pl.kossa.myflightsserver.restcontrollers.RunwaysRestController
-import pl.kossa.myflightsserver.restcontrollers.UsersRestController
+import pl.kossa.myflightsserver.restcontrollers.*
 
 
 @Profile("test")
@@ -31,5 +28,10 @@ class RestControllersTestConfig {
     @Bean
     fun runwaysRestController(): RunwaysRestController {
         return RunwaysRestController()
+    }
+
+    @Bean
+    fun flightsRestController(): FlightsRestController {
+        return FlightsRestController()
     }
 }

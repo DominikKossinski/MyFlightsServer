@@ -20,8 +20,8 @@ class AirplanesRestControllerTests {
     @Autowired
     private lateinit var airplanesRestController: AirplanesRestController
 
-    private val airplaneToPost = Airplane(0, "Airbus A380", 300, 200, null, "1")
-    private val airplaneToPut = Airplane(0, "Airbus A320", 200, 300, "test", "1")
+    private val airplaneToPost = Airplane(1, "Airbus A380", 300, 200, null, "1")
+    private val airplaneToPut = Airplane(1, "Airbus A320", 200, 300, "test", "1")
 
     @Test
     @Order(1)
@@ -48,7 +48,7 @@ class AirplanesRestControllerTests {
     @Test
     @Order(4)
     fun getAirplane() {
-        val response = airplanesRestController.getAirplaneById(0)
+        val response = airplanesRestController.getAirplaneById(airplaneToPost.airplaneId)
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body != null)
         val airplane = response.body!!
@@ -78,6 +78,15 @@ class AirplanesRestControllerTests {
         assert(response.body != null)
         val airplane = response.body!!
         checkAirplanes(airplane, airplaneToPut)
+    }
+
+    @Test
+    @Order(7)
+    fun deleteAirplane() {
+        airplanesRestController.deleteAirplane(airplaneToPost.airplaneId)
+        assertThrows<NotFoundException> {
+            airplanesRestController.deleteAirplane(airplaneToPost.airplaneId)
+        }
     }
 
     private fun checkAirplanes(airplane: Airplane, checkAirplane: Airplane) {
