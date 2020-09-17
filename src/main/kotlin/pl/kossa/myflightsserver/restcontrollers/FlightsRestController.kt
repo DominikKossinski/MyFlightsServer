@@ -13,6 +13,7 @@ import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.UserDetails
 import pl.kossa.myflightsserver.data.models.Flight
 import pl.kossa.myflightsserver.data.requests.FlightRequest
+import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
@@ -61,17 +62,17 @@ class FlightsRestController : BaseRestController() {
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = [
         ApiResponse(responseCode = "201"),
         ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
         ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
         ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
     ])
-    fun postFlight(@RequestBody flightRequest: FlightRequest) {
+    fun postFlight(@RequestBody flightRequest: FlightRequest): ResponseEntity<CreatedResponse> {
         val user = getUserDetails()
         val flight = validateFlightRequest(flightRequest, user)
-        flightsService.saveFlight(flight)
+        val flightAdded = flightsService.saveFlight(flight)
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(flightAdded.flightId))
     }
 
     @PutMapping("/{flightId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
