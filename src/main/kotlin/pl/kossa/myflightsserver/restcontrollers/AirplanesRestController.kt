@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.data.requests.AirplaneRequest
+import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
@@ -51,16 +52,16 @@ class AirplanesRestController : BaseRestController() {
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = [
         ApiResponse(responseCode = "201"),
         ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
         ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))])
     ])
-    fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest) {
+    fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): ResponseEntity<CreatedResponse> {
         val user = getUserDetails()
         val airplane = Airplane(0, airplaneRequest.name, airplaneRequest.maxSpeed, airplaneRequest.weight, airplaneRequest.imageUrl, user.uid)
-        airplanesService.saveAirplane(airplane)
+        val airplaneAdded = airplanesService.saveAirplane(airplane)
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(airplaneAdded.airplaneId))
     }
 
     @PutMapping("/{airplaneId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
