@@ -7,6 +7,7 @@ import javax.persistence.*
 data class Runway(
 
         @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
         @Column(name = "RunwayId", columnDefinition = "int")
         val runwayId: Int,
 
