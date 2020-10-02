@@ -35,18 +35,18 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `myflights`.`Airplanes` ;
 
-CREATE TABLE IF NOT EXISTS `myflights`.`Airplanes` (
-  `AirplaneId` INT NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(45) NOT NULL,
-  `MaxSpeed` INT NULL,
-  `Weight` INT NULL,
-  `ImageUrl` VARCHAR(200) NULL,
-  `UserId` VARCHAR(28) NOT NULL,
-  PRIMARY KEY (`AirplaneId`, `UserId`),
-  INDEX `fk_Airplanes_Users1_idx` (`UserId` ASC) VISIBLE,
-  CONSTRAINT `fk_Airplanes_Users1`
-    FOREIGN KEY (`UserId`)
-    REFERENCES `myflights`.`Users` (`UserId`)
+CREATE TABLE IF NOT EXISTS `myflights`.`Airplanes`(
+                                                      `AirplaneId` INT          NOT NULL /*AUTO_INCREMENT*/,
+                                                      `Name`       VARCHAR(45)  NOT NULL,
+                                                      `MaxSpeed`   INT          NULL,
+                                                      `Weight`     INT          NULL,
+                                                      `ImageUrl`   VARCHAR(200) NULL,
+                                                      `UserId`     VARCHAR(28)  NOT NULL,
+                                                      PRIMARY KEY (`AirplaneId`, `UserId`),
+                                                      INDEX `fk_Airplanes_Users1_idx` (`UserId` ASC) VISIBLE,
+                                                      CONSTRAINT `fk_Airplanes_Users1`
+                                                          FOREIGN KEY (`UserId`)
+                                                              REFERENCES `myflights`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

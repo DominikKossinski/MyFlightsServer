@@ -1,15 +1,13 @@
 package pl.kossa.myflightsserver.data.models
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "Airplanes")
 data class Airplane(
         @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
         @Column(name = "AirplaneId", columnDefinition = "int")
         val airplaneId: Int,
 
