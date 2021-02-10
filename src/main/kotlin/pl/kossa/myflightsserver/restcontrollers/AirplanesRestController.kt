@@ -59,7 +59,14 @@ class AirplanesRestController : BaseRestController() {
     ])
     fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): ResponseEntity<CreatedResponse> {
         val user = getUserDetails()
-        val airplane = Airplane(0, airplaneRequest.name, airplaneRequest.maxSpeed, airplaneRequest.weight, airplaneRequest.imageUrl, user.uid)
+        val airplane = Airplane(
+            0,
+            airplaneRequest.name,
+            airplaneRequest.maxSpeed,
+            airplaneRequest.weight,
+            airplaneRequest.image,
+            user.uid
+        )
         val airplaneAdded = airplanesService.saveAirplane(airplane)
         return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(airplaneAdded.airplaneId))
     }
@@ -75,7 +82,14 @@ class AirplanesRestController : BaseRestController() {
     fun putAirplane(@PathVariable("airplaneId") airplaneId: Int, @RequestBody @Valid airplaneRequest: AirplaneRequest) {
         val user = getUserDetails()
         airplanesService.getAirplaneById(airplaneId, user.uid)
-        val airplane = Airplane(airplaneId, airplaneRequest.name, airplaneRequest.maxSpeed, airplaneRequest.weight, airplaneRequest.imageUrl, user.uid)
+        val airplane = Airplane(
+            airplaneId,
+            airplaneRequest.name,
+            airplaneRequest.maxSpeed,
+            airplaneRequest.weight,
+            airplaneRequest.image,
+            user.uid
+        )
         airplanesService.saveAirplane(airplane)
     }
 

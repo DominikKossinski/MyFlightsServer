@@ -40,7 +40,7 @@ class UsersRestController : BaseRestController() {
     ])
     fun putUser(@RequestBody userRequest: UserRequest) {
         val user = getUserDetails()
-        val updatedUser = User(user.uid, userRequest.nick, user.email, userRequest.imageUrl)
+        val updatedUser = User(user.uid, userRequest.nick, user.email, userRequest.image)
         usersService.saveUser(updatedUser)
     }
 

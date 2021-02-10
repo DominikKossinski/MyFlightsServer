@@ -112,7 +112,9 @@ class FlightsRestController : BaseRestController() {
         if (arrivalRunway.airport.userId != user.uid) throw ForbiddenException()
         val departureRunway = runwaysService.getRunwayById(flightRequest.departureRunwayId)
         if (departureRunway.airport.userId != user.uid) throw ForbiddenException()
-        return Flight(flightId, flightRequest.note, flightRequest.distance, flightRequest.imageUrl,
-                flightRequest.startDate, flightRequest.endDate, user.uid, airplane, departureRunway, arrivalRunway)
+        return Flight(
+            flightId, flightRequest.note, flightRequest.distance, flightRequest.image,
+            flightRequest.startDate, flightRequest.endDate, user.uid, airplane, departureRunway, arrivalRunway
+        )
     }
 }

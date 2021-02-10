@@ -11,7 +11,7 @@ data class Runway(
         @Column(name = "RunwayId", columnDefinition = "int")
         val runwayId: Int,
 
-        @Column(name = "Name", columnDefinition = "varchar")
+        @Column(name = "RunwayName", columnDefinition = "varchar(200)")
         val name: String,
 
         @Column(name = "Length", columnDefinition = "int")
@@ -20,11 +20,12 @@ data class Runway(
         @Column(name = "Heading", columnDefinition = "int")
         val heading: Int,
 
-        @Column(name = "ILSFrequency", columnDefinition = "varchar")
+        @Column(name = "ILSFrequency", columnDefinition = "varchar(200)")
         val ilsFrequency: String?,
 
-        @Column(name = "ImageUrl", columnDefinition = "varchar")
-        val imageUrl: String?,
+        @OneToOne(cascade = [CascadeType.ALL])
+        @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
+        val image: Image?,
 
         @OneToOne(cascade = [CascadeType.ALL])
         @JoinColumn(name = "AirportId", referencedColumnName = "AirportId")

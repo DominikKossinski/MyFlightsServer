@@ -11,14 +11,15 @@ data class Flight(
         @Column(name = "FlightId", columnDefinition = "int")
         val flightId: Int,
 
-        @Column(name = "Note", columnDefinition = "varchar")
+        @Column(name = "Note", columnDefinition = "varchar(200)")
         val note: String?,
 
-        @Column(name = "Distance", columnDefinition = "varchar")
+        @Column(name = "Distance", columnDefinition = "varchar(200)")
         val distance: Int?,
 
-        @Column(name = "ImageUrl", columnDefinition = "varchar")
-        val imageUrl: String?,
+        @OneToOne(cascade = [CascadeType.ALL])
+        @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
+        val image: Image?,
 
         @Column(name = "StartDate", columnDefinition = "datetime")
         val startDate: Date,
@@ -26,7 +27,7 @@ data class Flight(
         @Column(name = "EndDate", columnDefinition = "datetime")
         val endDate: Date,
 
-        @Column(name = "UserId", columnDefinition = "varchar")
+        @Column(name = "UserId", columnDefinition = "varchar(200)")
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         val userId: String,
 

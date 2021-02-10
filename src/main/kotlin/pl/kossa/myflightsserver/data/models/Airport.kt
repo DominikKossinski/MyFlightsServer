@@ -6,30 +6,31 @@ import javax.persistence.*
 @Entity
 @Table(name = "Airports")
 data class Airport(
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        @Column(name = "AirportId", columnDefinition = "int")
-        val airportId: Int,
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "AirportId", columnDefinition = "int")
+    val airportId: Int,
 
-        @Column(name = "Name", columnDefinition = "varchar")
-        val name: String,
+    @Column(name = "AirportName", columnDefinition = "varchar(200)")
+    val name: String,
 
-        @Column(name = "City", columnDefinition = "varchar")
-        val city: String,
+    @Column(name = "City", columnDefinition = "varchar(200)")
+    val city: String,
 
-        @Column(name = "Shortcut", columnDefinition = "varchar")
-        val shortcut: String,
+    @Column(name = "Shortcut", columnDefinition = "varchar(200)")
+    val shortcut: String,
 
-        @Column(name = "TowerFrequency", columnDefinition = "varchar")
-        val towerFrequency: String?,
+    @Column(name = "TowerFrequency", columnDefinition = "varchar(200)")
+    val towerFrequency: String?,
 
-        @Column(name = "GroundFrequency", columnDefinition = "varchar")
-        val groundFrequency: String?,
+    @Column(name = "GroundFrequency", columnDefinition = "varchar(200)")
+    val groundFrequency: String?,
 
-        @Column(name = "ImageUrl", columnDefinition = "varchar")
-        val imageUrl: String?,
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
+    val image: Image?,
 
-        @Column(name = "UserId", columnDefinition = "varchar")
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        val userId: String
+    @Column(name = "UserId", columnDefinition = "varchar(200)")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    val userId: String
 )
