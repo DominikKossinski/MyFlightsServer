@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.imgscalr.Scalr
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -22,8 +23,10 @@ import pl.kossa.myflightsserver.data.models.Image
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import pl.kossa.myflightsserver.services.ImagesService
+import java.io.ByteArrayOutputStream
 import java.lang.System.getenv
 import java.util.*
+import javax.imageio.ImageIO
 
 
 @RestController
@@ -56,18 +59,29 @@ class ImagesRestController : BaseRestController() {
         val user = getUserDetails()
         val id = UUID.randomUUID().toString()
         val name = id + StringUtils.getFilenameExtension(image.originalFilename)
+        val thumbnail = makeThumbnail(image)
+        val thumbnailName = name + "thumbnail"
         val url = "${getenv("IMAGE_URL")}${name}?alt=media"
-        val storage = storageOptions.service
-        val blobId = BlobId.of(getenv("FIRESTORAGE_NAME"), name) // TODO to env variable
-        val blobInfo = BlobInfo.newBuilder(blobId).setContentType(image.contentType).build()
-        storage.create(blobInfo, image.bytes)
-        val imageAdded = imagesService.saveImage(Image(id, url, ""))
-        // TODO post image to db and return image id
-        // TODO reduce image size
+        val thumbnailUrl = "${getenv("IMAGE_URL")}${thumbnailName}?alt=media"
+        createInFireStorage(name, image.bytes, image.contentType)
+        createInFireStorage(thumbnailName, thumbnail, image.contentType)
+        //TODO add max size to image
+        val imageAdded = imagesService.saveImage(Image(id, url, thumbnailUrl))
         return ResponseEntity.status(HttpStatus.CREATED).body(imageAdded)
     }
 
-    private fun generateFileName(originalFileName: String?): String {
-        return UUID.randomUUID().toString() + StringUtils.getFilenameExtension(originalFileName)
+    private fun createInFireStorage(name: String, image: ByteArray, contentType: String?) {
+        val storage = storageOptions.service
+        val blobId = BlobId.of(getenv("FIRESTORAGE_NAME"), name)
+        val blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build()
+        storage.create(blobInfo, image)
+    }
+
+    private fun makeThumbnail(image: MultipartFile): ByteArray {
+        val img = ImageIO.read(image.inputStream)
+        val thumbImg = Scalr.resize(img, Scalr.Mode.AUTOMATIC, 100, Scalr.OP_ANTIALIAS)
+        val thumbOutput = ByteArrayOutputStream()
+        ImageIO.write(thumbImg, image.contentType!!.split("/")[1], thumbOutput)
+        return thumbOutput.toByteArray()
     }
 }
