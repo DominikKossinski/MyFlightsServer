@@ -34,8 +34,7 @@ class SecurityFilter : OncePerRequestFilter() {
         try {
             filterChain.doFilter(request, response)
         } catch (e: Exception) {
-            logger.error("${applicationConfig.size} Error $e")
-            logger.error("Cause ${e.cause}")
+            logger.error("Error $e")
             if (e.cause is MaxUploadSizeExceededException) {
                 throw e.cause ?: e
             } else {
