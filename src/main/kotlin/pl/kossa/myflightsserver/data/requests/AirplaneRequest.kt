@@ -1,5 +1,6 @@
 package pl.kossa.myflightsserver.data.requests
 
+import pl.kossa.myflightsserver.data.models.Image
 import javax.validation.constraints.Size
 
 data class AirplaneRequest(
@@ -13,6 +14,5 @@ data class AirplaneRequest(
         @Size(min = 0)
         val weight: Int?,
 
-        @Size(min = 0, max = 200)
-        val imageUrl: String?
+        val image: Image?
 )

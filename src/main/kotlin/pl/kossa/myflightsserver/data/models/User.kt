@@ -1,23 +1,21 @@
 package pl.kossa.myflightsserver.data.models
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "Users")
 data class User(
-        @Id
-        @Column(name = "UserId", columnDefinition = "varchar")
-        val userId: String,
+    @Id
+    @Column(name = "UserId", columnDefinition = "varchar(200)")
+    val userId: String,
 
-        @Column(name = "Nick", columnDefinition = "varchar")
-        val nick: String?,
+    @Column(name = "Nick", columnDefinition = "varchar(200)")
+    val nick: String?,
 
-        @Column(name = "Email", columnDefinition = "varchar")
-        val email: String?,
+    @Column(name = "Email", columnDefinition = "varchar(200)")
+    val email: String?,
 
-        @Column(name = "ImageUrl", columnDefinition = "varchar")
-        val imageUrl: String?
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
+    val image: Image?
 )

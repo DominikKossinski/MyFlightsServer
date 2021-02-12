@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.multipart.MaxUploadSizeExceededException
+import pl.kossa.myflightsserver.config.ApplicationConfig
 import pl.kossa.myflightsserver.data.Credentials
 import pl.kossa.myflightsserver.data.User
 import javax.servlet.FilterChain
@@ -20,9 +22,25 @@ class SecurityFilter : OncePerRequestFilter() {
     @Autowired
     lateinit var securityService: SecurityService
 
-    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+    @Autowired
+    lateinit var applicationConfig: ApplicationConfig
+
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
         verifyToken(request)
-        filterChain.doFilter(request, response)
+        try {
+            filterChain.doFilter(request, response)
+        } catch (e: Exception) {
+            logger.error("Error $e")
+            if (e.cause is MaxUploadSizeExceededException) {
+                throw e.cause ?: e
+            } else {
+                throw e
+            }
+        }
     }
 
     @Throws(FirebaseAuthException::class)

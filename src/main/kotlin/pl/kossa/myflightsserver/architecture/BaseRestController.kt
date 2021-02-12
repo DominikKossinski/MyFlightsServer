@@ -26,6 +26,6 @@ abstract class BaseRestController {
             usersService.saveUser(User(user.uid, null, user.email, null))
             return UserDetails(user.uid, user.email, user.isEmailVerified, null, null)
         }
-        return UserDetails(user.uid, user.email, user.isEmailVerified, dbUser.nick, dbUser.imageUrl)
+        return UserDetails(user.uid, user.email, user.isEmailVerified, dbUser.nick, dbUser.image)
     }
 }

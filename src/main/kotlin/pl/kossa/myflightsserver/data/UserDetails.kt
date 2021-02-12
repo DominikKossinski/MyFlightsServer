@@ -1,6 +1,7 @@
 package pl.kossa.myflightsserver.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import pl.kossa.myflightsserver.data.models.Image
 
 data class UserDetails(
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -8,5 +9,5 @@ data class UserDetails(
         val email: String,
         val isEmailVerified: Boolean,
         val nick: String?,
-        val imageUrl: String?
+        val imageUrl: Image?
 )
