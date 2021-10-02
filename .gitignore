@@ -34,3 +34,4 @@ out/
 .vscode/
 
 firebase-adminsdk.json
+http-client.private.env.json

@@ -21,7 +21,7 @@ class AirplanesRestControllerTests {
     private lateinit var airplanesRestController: AirplanesRestController
 
     private val airplaneToPost = Airplane(1, "Airbus A380", 300, 200, null, "1")
-    private val airplaneToPut = Airplane(1, "Airbus A320", 200, 300, "test", "1")
+    private val airplaneToPut = Airplane(1, "Airbus A320", 200, 300, null, "1")
 
     @Test
     @Order(1)
@@ -42,7 +42,14 @@ class AirplanesRestControllerTests {
     @Test
     @Order(3)
     fun postAirplane() {
-        airplanesRestController.postAirplane(AirplaneRequest(airplaneToPost.name, airplaneToPost.maxSpeed, airplaneToPost.weight, airplaneToPost.imageUrl))
+        airplanesRestController.postAirplane(
+            AirplaneRequest(
+                airplaneToPost.name,
+                airplaneToPost.maxSpeed,
+                airplaneToPost.weight,
+                airplaneToPost.image
+            )
+        )
     }
 
     @Test
@@ -71,7 +78,7 @@ class AirplanesRestControllerTests {
     fun putAirplane() {
         airplanesRestController.putAirplane(
                 airplaneToPut.airplaneId,
-                AirplaneRequest(airplaneToPut.name, airplaneToPut.maxSpeed, airplaneToPut.weight, airplaneToPut.imageUrl)
+            AirplaneRequest(airplaneToPut.name, airplaneToPut.maxSpeed, airplaneToPut.weight, airplaneToPut.image)
         )
         val response = airplanesRestController.getAirplaneById(airplaneToPut.airplaneId)
         assert(response.statusCode == HttpStatus.OK)
@@ -94,6 +101,6 @@ class AirplanesRestControllerTests {
         assert(airplane.name == checkAirplane.name)
         assert(airplane.maxSpeed == checkAirplane.maxSpeed)
         assert(airplane.weight == checkAirplane.weight)
-        assert(airplane.imageUrl == checkAirplane.imageUrl)
+        assert(airplane.image == checkAirplane.image)
     }
 }

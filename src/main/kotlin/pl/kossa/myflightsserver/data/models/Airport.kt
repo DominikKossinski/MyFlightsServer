@@ -17,8 +17,8 @@ data class Airport(
     @Column(name = "City", columnDefinition = "varchar(200)")
     val city: String,
 
-    @Column(name = "Shortcut", columnDefinition = "varchar(200)")
-    val shortcut: String,
+    @Column(name = "IcaoCode", columnDefinition = "varchar(200)")
+    val icaoCode: String,
 
     @Column(name = "TowerFrequency", columnDefinition = "varchar(200)")
     val towerFrequency: String?,

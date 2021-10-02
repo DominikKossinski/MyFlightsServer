@@ -84,4 +84,7 @@ class ImagesRestController : BaseRestController() {
         ImageIO.write(thumbImg, image.contentType!!.split("/")[1], thumbOutput)
         return thumbOutput.toByteArray()
     }
+
+    //TODO put, delete
+
 }

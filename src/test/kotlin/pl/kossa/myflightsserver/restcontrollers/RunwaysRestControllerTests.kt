@@ -25,14 +25,23 @@ class RunwaysRestControllerTests {
     @Autowired
     private lateinit var airportsRestController: AirportsRestController
 
-    private val airport = Airport(1, "Okencie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
+    private val airport = Airport(1, "Okęcie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
     private val runwayToPost = Runway(1, "36L", 3300, 357, null, null, airport)
-    private val runwayToPut = Runway(1, "35L", 3500, 350, "119.50", "url", airport)
+    private val runwayToPut = Runway(1, "35L", 3500, 350, "119.50", null, airport)
 
     @Test
     @Order(1)
     fun addAirport() {
-        airportsRestController.postAirport(AirportRequest(airport.name, airport.city, airport.shortcut, airport.towerFrequency, airport.groundFrequency, airport.imageUrl))
+        airportsRestController.postAirport(
+            AirportRequest(
+                airport.name,
+                airport.city,
+                airport.icaoCode,
+                airport.towerFrequency,
+                airport.groundFrequency,
+                airport.image
+            )
+        )
     }
 
     @Test
@@ -54,7 +63,16 @@ class RunwaysRestControllerTests {
     @Test
     @Order(4)
     fun postAirplane() {
-        runwaysRestController.postRunway(RunwayRequest(runwayToPost.name, runwayToPost.length, runwayToPost.heading, runwayToPost.ilsFrequency, runwayToPost.imageUrl, runwayToPost.airport.airportId))
+        runwaysRestController.postRunway(
+            RunwayRequest(
+                runwayToPost.name,
+                runwayToPost.length,
+                runwayToPost.heading,
+                runwayToPost.ilsFrequency,
+                runwayToPost.image,
+                runwayToPost.airport.airportId
+            )
+        )
     }
 
     @Test
@@ -83,7 +101,14 @@ class RunwaysRestControllerTests {
     fun putRunway() {
         runwaysRestController.putRunway(
                 runwayToPut.runwayId,
-                RunwayRequest(runwayToPut.name, runwayToPut.length, runwayToPut.heading, runwayToPut.ilsFrequency, runwayToPut.imageUrl, runwayToPut.airport.airportId)
+            RunwayRequest(
+                runwayToPut.name,
+                runwayToPut.length,
+                runwayToPut.heading,
+                runwayToPut.ilsFrequency,
+                runwayToPut.image,
+                runwayToPut.airport.airportId
+            )
         )
         val response = runwaysRestController.getRunwayById(runwayToPut.runwayId)
         assert(response.statusCode == HttpStatus.OK)
@@ -113,7 +138,7 @@ class RunwaysRestControllerTests {
         assert(runway.length == checkRunway.length)
         assert(runway.heading == checkRunway.heading)
         assert(runway.ilsFrequency == checkRunway.ilsFrequency)
-        assert(runway.imageUrl == checkRunway.imageUrl)
+        assert(runway.image == checkRunway.image)
         assert(runway.airport == checkRunway.airport)
     }
 }

@@ -1,0 +1,19 @@
+GET http://localhost:8080/api/airports
+Content-Type: application/json
+Accept: */*
+Authorization: Bearer {{token}}
+
+###
+POST http://localhost:8080/api/airports
+Content-Type: application/json
+Accept: */*
+Authorization: Bearer {{token}}
+
+{
+  "name": "Katowice Pyrzowice",
+  "city": "Katowice",
+  "shortcut": "EPKT",
+  "towerFrequency": "112.4",
+  "groundFrequency": "119.6",
+  "image": null
+}
