@@ -36,25 +36,70 @@ class FlightsRestControllerTests {
     @Autowired
     private lateinit var airplanesRestController: AirplanesRestController
 
-    private val departureAirport = Airport(1, "Okencie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
-    private val arrivalAirport = Airport(2, "Katowice", "Ktowice", "EPKT", "118.50", "121.00", null, "1")
+    private val departureAirport = Airport(1, "Okęcie", "Warsaw", "EPWA", "119.50", "119.00", null, "1")
+    private val arrivalAirport = Airport(2, "Katowice", "Katowice", "EPKT", "118.50", "121.00", null, "1")
     private val departureRunway = Runway(1, "36L", 3300, 357, null, null, departureAirport)
-    private val arrivalRunway = Runway(2, "35L", 3500, 350, "119.50", "url", arrivalAirport)
+    private val arrivalRunway = Runway(2, "35L", 3500, 350, "119.50", null, arrivalAirport)
     private val airplane = Airplane(1, "Airbus A380", 300, 200, null, "1")
 
-    private val flightToPost = Flight(1, "Note", 1000, null, Date(), Date(), "1", airplane, departureRunway, arrivalRunway)
-    private val flightToPut = Flight(1, "Note5", 1500, null, Date(), Date(), "1", airplane, arrivalRunway, departureRunway)
+    private val flightToPost =
+        Flight(1, "Note", 1000, null, Date(), Date(), "1", airplane, departureRunway, arrivalRunway)
+    private val flightToPut =
+        Flight(1, "Note5", 1500, null, Date(), Date(), "1", airplane, arrivalRunway, departureRunway)
 
     @Test
     @Order(1)
     fun addData() {
-        airplanesRestController.postAirplane(AirplaneRequest(airplane.name, airplane.maxSpeed, airplane.weight, airplane.imageUrl))
+        airplanesRestController.postAirplane(
+            AirplaneRequest(
+                airplane.name,
+                airplane.maxSpeed,
+                airplane.weight,
+                airplane.image
+            )
+        )
 
-        airportsRestController.postAirport(AirportRequest(departureAirport.name, departureAirport.city, departureAirport.shortcut, departureAirport.towerFrequency, departureAirport.groundFrequency, departureAirport.imageUrl))
-        airportsRestController.postAirport(AirportRequest(arrivalAirport.name, arrivalAirport.city, arrivalAirport.shortcut, arrivalAirport.towerFrequency, arrivalAirport.groundFrequency, arrivalAirport.imageUrl))
+        airportsRestController.postAirport(
+            AirportRequest(
+                departureAirport.name,
+                departureAirport.city,
+                departureAirport.icaoCode,
+                departureAirport.towerFrequency,
+                departureAirport.groundFrequency,
+                departureAirport.image
+            )
+        )
+        airportsRestController.postAirport(
+            AirportRequest(
+                arrivalAirport.name,
+                arrivalAirport.city,
+                arrivalAirport.icaoCode,
+                arrivalAirport.towerFrequency,
+                arrivalAirport.groundFrequency,
+                arrivalAirport.image
+            )
+        )
 
-        runwaysRestController.postRunway(RunwayRequest(departureRunway.name, departureRunway.length, departureRunway.heading, departureRunway.ilsFrequency, departureRunway.imageUrl, departureRunway.airport.airportId))
-        runwaysRestController.postRunway(RunwayRequest(arrivalRunway.name, arrivalRunway.length, arrivalRunway.heading, arrivalRunway.ilsFrequency, arrivalRunway.imageUrl, arrivalRunway.airport.airportId))
+        runwaysRestController.postRunway(
+            RunwayRequest(
+                departureRunway.name,
+                departureRunway.length,
+                departureRunway.heading,
+                departureRunway.ilsFrequency,
+                departureRunway.image,
+                departureRunway.airport.airportId
+            )
+        )
+        runwaysRestController.postRunway(
+            RunwayRequest(
+                arrivalRunway.name,
+                arrivalRunway.length,
+                arrivalRunway.heading,
+                arrivalRunway.ilsFrequency,
+                arrivalRunway.image,
+                arrivalRunway.airport.airportId
+            )
+        )
     }
 
     @Test
@@ -78,9 +123,9 @@ class FlightsRestControllerTests {
     fun postFlight() {
         flightsRestController.postFlight(
                 FlightRequest(
-                        flightToPost.note, flightToPost.distance, flightToPost.imageUrl,
-                        flightToPost.startDate, flightToPost.endDate, flightToPost.airplane.airplaneId,
-                        flightToPost.departureRunway.runwayId, flightToPost.arrivalRunway.runwayId
+                    flightToPost.note, flightToPost.distance, flightToPost.image,
+                    flightToPost.startDate, flightToPost.endDate, flightToPost.airplane.airplaneId,
+                    flightToPost.departureRunway.runwayId, flightToPost.arrivalRunway.runwayId
                 )
         )
     }
@@ -112,9 +157,9 @@ class FlightsRestControllerTests {
         flightsRestController.putFLight(
                 flightToPut.flightId,
                 FlightRequest(
-                        flightToPut.note, flightToPut.distance, flightToPut.imageUrl,
-                        flightToPut.startDate, flightToPut.endDate, flightToPut.airplane.airplaneId,
-                        flightToPut.departureRunway.runwayId, flightToPut.arrivalRunway.runwayId
+                    flightToPut.note, flightToPut.distance, flightToPut.image,
+                    flightToPut.startDate, flightToPut.endDate, flightToPut.airplane.airplaneId,
+                    flightToPut.departureRunway.runwayId, flightToPut.arrivalRunway.runwayId
                 )
         )
         val response = flightsRestController.getFlightById(flightToPut.flightId)
@@ -149,7 +194,7 @@ class FlightsRestControllerTests {
         assert(flight.flightId == checkFlight.flightId)
         assert(flight.note == checkFlight.note)
         assert(flight.distance == checkFlight.distance)
-        assert(flight.imageUrl == checkFlight.imageUrl)
+        assert(flight.image == checkFlight.image)
         assert(flight.userId == checkFlight.userId)
         assert(flight.airplane == checkFlight.airplane)
         assert(flight.departureRunway == checkFlight.departureRunway)

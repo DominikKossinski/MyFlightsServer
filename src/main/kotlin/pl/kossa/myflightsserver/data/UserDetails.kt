@@ -9,5 +9,5 @@ data class UserDetails(
         val email: String,
         val isEmailVerified: Boolean,
         val nick: String?,
-        val imageUrl: Image?
+        val image: Image?
 )

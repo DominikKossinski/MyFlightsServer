@@ -42,7 +42,16 @@ class AirportsRestControllerTests {
     @Test
     @Order(3)
     fun postAirport() {
-        airportRestController.postAirport(AirportRequest(airportToPost.name, airportToPost.city, airportToPost.shortcut, airportToPost.towerFrequency, airportToPost.groundFrequency, airportToPost.imageUrl))
+        airportRestController.postAirport(
+            AirportRequest(
+                airportToPost.name,
+                airportToPost.city,
+                airportToPost.icaoCode,
+                airportToPost.towerFrequency,
+                airportToPost.groundFrequency,
+                airportToPost.image
+            )
+        )
     }
 
     @Test
@@ -71,7 +80,14 @@ class AirportsRestControllerTests {
     fun putAirport() {
         airportRestController.putAirport(
                 airportToPut.airportId,
-                AirportRequest(airportToPut.name, airportToPut.city, airportToPut.shortcut, airportToPut.towerFrequency, airportToPut.groundFrequency, airportToPut.imageUrl)
+            AirportRequest(
+                airportToPut.name,
+                airportToPut.city,
+                airportToPut.icaoCode,
+                airportToPut.towerFrequency,
+                airportToPut.groundFrequency,
+                airportToPut.image
+            )
         )
         val response = airportRestController.getAirportById(airportToPut.airportId)
         assert(response.statusCode == HttpStatus.OK)
@@ -94,9 +110,9 @@ class AirportsRestControllerTests {
         assert(airport.name == checkAirport.name)
         assert(airport.userId == checkAirport.userId)
         assert(airport.city == checkAirport.city)
-        assert(airport.shortcut == checkAirport.shortcut)
+        assert(airport.icaoCode == checkAirport.icaoCode)
         assert(airport.towerFrequency == checkAirport.towerFrequency)
         assert(airport.groundFrequency == checkAirport.groundFrequency)
-        assert(airport.imageUrl == checkAirport.imageUrl)
+        assert(airport.image == checkAirport.image)
     }
 }

@@ -32,13 +32,13 @@ class UsersRestControllerTests {
         assert(user.isEmailVerified)
         assert(user.email == "test@test.pl")
         assert(user.nick == "Test")
-        assert(user.imageUrl == null)
+        assert(user.image == null)
     }
 
     @Test
     @Order(2)
     fun putUser() {
-        usersRestController.putUser(UserRequest("NewNick", "Url"))
+        usersRestController.putUser(UserRequest("NewNick", null))
         val response = usersRestController.getUser()
         assert(response.statusCode == HttpStatus.OK)
         assert(response.body != null)
@@ -46,6 +46,6 @@ class UsersRestControllerTests {
         assert(user.isEmailVerified)
         assert(user.email == "test@test.pl")
         assert(user.nick == "NewNick")
-        assert(user.imageUrl == "Url")
+        assert(user.image == null)
     }
 }
