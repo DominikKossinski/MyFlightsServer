@@ -17,6 +17,15 @@ Environment variables required to connect to admin database:
 ```
 
 \* in case of time zone error you need to append this to db url:
+
 ```
     ?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
 ``` 
+
+## MongoDB
+
+Run MongoDB server:
+
+```
+<MongoDB-path>/mongod.exe --dbpath <data path>
+```
