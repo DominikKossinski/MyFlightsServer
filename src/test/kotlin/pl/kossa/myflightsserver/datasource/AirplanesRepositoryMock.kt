@@ -1,80 +1,87 @@
 package pl.kossa.myflightsserver.datasource
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.repositories.AirplanesRepository
-import java.util.*
 
 class AirplanesRepositoryMock : AirplanesRepository {
 
     private val airplanes = arrayListOf<Airplane>()
 
-    override fun findByUserId(uid: String): Iterable<Airplane> = airplanes.filter { it.userId == uid }
+    override suspend fun findAirplanesByUserId(userId: String): List<Airplane> =
+        airplanes.filter { it.userId == userId }
 
-    override fun findOneByAirplaneId(airplaneId: Int, uid: String): Airplane? = airplanes.find { it.airplaneId == airplaneId && it.userId == uid }
+    override suspend fun findAirplaneByUserIdAndAirplaneId(userId: String, airplaneId: String): Airplane? =
+        airplanes.find { it.userId == userId && it.airplaneId == airplaneId }
 
-    override fun <S : Airplane?> save(entity: S): S {
+    override suspend fun deleteAll(entities: Iterable<Airplane>) {
+        airplanes.removeAll(entities)
+    }
+
+    override suspend fun <S : Airplane> deleteAll(entityStream: Flow<S>) {
+        airplanes.removeAll(entityStream.toList())
+    }
+
+    override suspend fun deleteAllById(ids: Iterable<String>) {
+        deleteAll(airplanes.filter { it.airplaneId in ids })
+    }
+
+    override suspend fun deleteById(id: String) {
+        deleteAll(airplanes.filter { it.airplaneId == id })
+    }
+
+    override suspend fun existsById(id: String): Boolean {
+        return airplanes.find { it.airplaneId == id } != null
+    }
+
+    override fun findAll(): Flow<Airplane> = flow { airplanes }
+
+    override fun findAllById(ids: Iterable<String>): Flow<Airplane> = flow { airplanes.filter { it.airplaneId in ids } }
+
+    override fun findAllById(ids: Flow<String>): Flow<Airplane> =
+        flow { airplanes.filter { it.airplaneId in ids.toList() } }
+
+    override suspend fun findById(id: String): Airplane? = airplanes.find { it.airplaneId == id }
+
+    override suspend fun <S : Airplane> save(entity: S): Airplane {
         (entity as? Airplane)?.let {
-            if (entity.airplaneId > 0) {
-
-                val found = airplanes.find { it.airplaneId == entity.airplaneId }
-                if (found != null) airplanes.remove(found)
+            airplanes.find { it.airplaneId == entity.airplaneId }?.let { found ->
+                airplanes.remove(found)
             }
-            airplanes.add(it.copy(airplaneId = airplanes.size + 1))
+            airplanes.add(it)
         }
         return entity
     }
 
-    override fun <S : Airplane?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
-        entities.forEach {
-            (it as? Airplane)?.let { airplane ->
-                if (airplane.airplaneId > 0) {
-                    val found = airplanes.find { it.airplaneId == airplane.airplaneId }
-                    if (found != null) airplanes.remove(found)
+    override fun <S : Airplane> saveAll(entities: Iterable<S>): Flow<S> {
+        entities.forEach { entity ->
+            (entity as? Airplane)?.let {
+                airplanes.find { it.airplaneId == entity.airplaneId }?.let { found ->
+                    airplanes.remove(found)
                 }
-                airplanes.add(airplane.copy(airplaneId = airplanes.size + 1))
+                airplanes.add(it)
             }
         }
-        return entities
+        return flow { entities }
     }
 
-    override fun findAll(): MutableIterable<Airplane> = airplanes
+    override fun <S : Airplane> saveAll(entityStream: Flow<S>): Flow<S> {
+        entityStream.onEach {
+            save(it)
+        }
+        return entityStream
+    }
 
-    override fun findAllById(ids: MutableIterable<Int>): MutableIterable<Airplane> = airplanes.filter { ids.contains(it.airplaneId) }.toMutableList()
+    override suspend fun count(): Long = airplanes.size.toLong()
 
-    override fun count(): Long = airplanes.size.toLong()
-
-    override fun delete(entity: Airplane) {
+    override suspend fun delete(entity: Airplane) {
         airplanes.remove(entity)
     }
 
-    override fun deleteAll(entities: MutableIterable<Airplane>) {
-        entities.forEach {
-            airplanes.remove(it)
-        }
-    }
-
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
         airplanes.clear()
     }
-
-    override fun deleteById(id: Int) {
-        val airplane = airplanes.find { it.airplaneId == id }
-        airplane?.let {
-            airplanes.remove(it)
-        }
-    }
-
-    override fun existsById(id: Int): Boolean {
-        return airplanes.find { it.airplaneId == id } != null
-    }
-
-    override fun findById(id: Int): Optional<Airplane> {
-        val airplane = airplanes.find { it.airplaneId == id }
-        if (airplane != null) {
-            return Optional.of(airplane)
-        }
-        return Optional.empty()
-    }
-
-
 }

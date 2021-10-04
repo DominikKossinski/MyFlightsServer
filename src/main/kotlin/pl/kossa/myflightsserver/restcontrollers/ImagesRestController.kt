@@ -55,7 +55,7 @@ class ImagesRestController : BaseRestController() {
             )
         ]
     )
-    fun postImage(@RequestBody image: MultipartFile): ResponseEntity<Image> {
+    suspend fun postImage(@RequestBody image: MultipartFile): ResponseEntity<Image> {
         val user = getUserDetails()
         val id = UUID.randomUUID().toString()
         val name = id + StringUtils.getFilenameExtension(image.originalFilename)
@@ -66,7 +66,7 @@ class ImagesRestController : BaseRestController() {
         createInFireStorage(name, image.bytes, image.contentType)
         createInFireStorage(thumbnailName, thumbnail, image.contentType)
         //TODO add max size to image
-        val imageAdded = imagesService.saveImage(Image(id, url, thumbnailUrl))
+        val imageAdded = imagesService.saveImage(Image(id, url, thumbnailUrl, user.uid))
         return ResponseEntity.status(HttpStatus.CREATED).body(imageAdded)
     }
 

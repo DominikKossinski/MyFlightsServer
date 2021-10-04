@@ -1,10 +1,12 @@
 package pl.kossa.myflightsserver.repositories
 
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.mongodb.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import pl.kossa.myflightsserver.data.models.User
 
-interface UsersRepository : CrudRepository<User, String> {
+interface UsersRepository : CoroutineCrudRepository<User, String> {
 
-    fun findOneByEmail(email: String): User?
+    @Query("{'email': ?0}")
+    suspend fun findByEmail(email: String): User?
 
 }

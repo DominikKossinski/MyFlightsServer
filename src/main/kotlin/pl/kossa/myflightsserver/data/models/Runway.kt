@@ -1,33 +1,26 @@
 package pl.kossa.myflightsserver.data.models
 
-import javax.persistence.*
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+import javax.validation.constraints.Size
 
-@Entity
-@Table(name = "Runways")
+@Document
 data class Runway(
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        @Column(name = "RunwayId", columnDefinition = "int")
-        val runwayId: Int,
+    @Id
+    val runwayId: String,
 
-        @Column(name = "RunwayName", columnDefinition = "varchar(200)")
-        val name: String,
+    @Size(max = 50)
+    val name: String,
 
-        @Column(name = "Length", columnDefinition = "int")
-        val length: Int,
+    @Size(max = 5_000)
+    val length: Int,
 
-        @Column(name = "Heading", columnDefinition = "int")
-        val heading: Int,
+    @Size(min = 0, max = 360)
+    val heading: Int,
 
-        @Column(name = "ILSFrequency", columnDefinition = "varchar(200)")
-        val ilsFrequency: String?,
+    @Size(max = 6)
+    val ilsFrequency: String?,
 
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
-        val image: Image?,
-
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "AirportId", referencedColumnName = "AirportId")
-        val airport: Airport
+    val image: Image?
 )

@@ -18,7 +18,7 @@ abstract class BaseRestController {
     @Autowired
     lateinit var usersService: UsersService
 
-    protected fun getUserDetails(): UserDetails {
+    protected suspend fun getUserDetails(): UserDetails {
         val user = securityService.getUser() ?: throw UnauthorizedException()
         val dbUser = usersService.getUserByEmail(user.email)
         if (dbUser == null) {

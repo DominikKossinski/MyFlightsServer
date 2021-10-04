@@ -1,46 +1,47 @@
 package pl.kossa.myflightsserver.data.models
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
-import javax.persistence.*
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Past
+import javax.validation.constraints.Size
 
-@Entity
-@Table(name = "Flights")
+@Document
 data class Flight(
-        @Id
-        @Column(name = "FlightId", columnDefinition = "int")
-        val flightId: Int,
+    @Id
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    val flightId: String,
 
-        @Column(name = "Note", columnDefinition = "varchar(200)")
-        val note: String?,
+    @Size(max = 1000)
+    val note: String?,
 
-        @Column(name = "Distance", columnDefinition = "varchar(200)")
-        val distance: Int?,
+    @Size(min = 1)
+    val distance: Int?,
 
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "ImageId", referencedColumnName = "ImageId")
-        val image: Image?,
+    val image: Image?,
 
-        @Column(name = "StartDate", columnDefinition = "datetime")
-        val startDate: Date,
+    @Past
+    val startDate: Date,
 
-        @Column(name = "EndDate", columnDefinition = "datetime")
-        val endDate: Date,
+    @Past
+    val endDate: Date,
 
-        @Column(name = "UserId", columnDefinition = "varchar(200)")
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        val userId: String,
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank
+    @NotNull
+    val userId: String,
 
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "AirplaneId", referencedColumnName = "AirplaneId")
-        val airplane: Airplane,
+    val airplane: Airplane,
 
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "DepartureRunwayId", referencedColumnName = "RunwayID")
-        val departureRunway: Runway,
+    val departureAirport: Airport,
+
+    val departureRunway: Runway,
 
 
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "ArrivalRunwayId", referencedColumnName = "RunwayID")
-        val arrivalRunway: Runway
+    val arrivalAirport: Airport,
+
+    val arrivalRunway: Runway
 )

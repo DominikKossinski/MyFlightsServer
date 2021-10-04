@@ -17,6 +17,7 @@ import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import pl.kossa.myflightsserver.services.AirportsService
+import java.util.*
 import javax.validation.Valid
 
 @RestController
@@ -28,65 +29,134 @@ class AirportsRestController : BaseRestController() {
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))])
-    ])
-    fun getUserAirports(): ResponseEntity<List<Airport>> {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            )
+        ]
+    )
+    suspend fun getUserAirports(): List<Airport> {
         val user = getUserDetails()
-        return ResponseEntity.ok(airportsService.getAirportsByUserId(user.uid))
+        return airportsService.getAirportsByUserId(user.uid)
     }
 
     @GetMapping("/{airportId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun getAirportById(@PathVariable("airportId") airportId: Int): ResponseEntity<Airport> {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun getAirportById(@PathVariable("airportId") airportId: String): Airport {
         val user = getUserDetails()
-        return ResponseEntity.ok(airportsService.getAirportById(airportId, user.uid))
+        return airportsService.getAirportById(user.uid, airportId)
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "201"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))])
-    ])
-    fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): ResponseEntity<CreatedResponse> {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            )
+        ]
+    )
+    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): ResponseEntity<CreatedResponse> {
         val user = getUserDetails()
-        val airport = airportsService.saveAirport(airportRequest.toAirport(0, user.uid))
+        val airport = airportsService.saveAirport(airportRequest.toAirport(UUID.randomUUID().toString(), user.uid))
         return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(airport.airportId))
     }
 
-    @PutMapping("/{airportId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping(
+        "/{airportId}",
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun putAirport(@PathVariable("airportId") airportId: Int, @RequestBody @Valid airportRequest: AirportRequest) {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun putAirport(
+        @PathVariable("airportId") airportId: String,
+        @RequestBody @Valid airportRequest: AirportRequest
+    ) {
         val user = getUserDetails()
-        airportsService.getAirportById(airportId, user.uid)
+        airportsService.getAirportById(user.uid, airportId)
         airportsService.saveAirport(airportRequest.toAirport(airportId, user.uid))
     }
 
     @DeleteMapping("/{airportId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun deleteAirport(@PathVariable("airportId") airportId: Int) {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun deleteAirport(@PathVariable("airportId") airportId: String) {
         val user = getUserDetails()
-        airportsService.getAirportById(airportId, user.uid)
+        airportsService.getAirportById(user.uid, airportId)
         airportsService.deleteAirportById(airportId)
     }
 

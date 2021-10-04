@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import pl.kossa.myflightsserver.config.DataSourceTestConfig
 import pl.kossa.myflightsserver.config.FirebaseTestConfig
@@ -24,11 +23,8 @@ class UsersRestControllerTests {
 
     @Test
     @Order(1)
-    fun getUser() {
-        val response = usersRestController.getUser()
-        assert(response.statusCode == HttpStatus.OK)
-        assert(response.body != null)
-        val user = response.body!!
+    suspend fun getUser() {
+        val user = usersRestController.getUser()
         assert(user.isEmailVerified)
         assert(user.email == "test@test.pl")
         assert(user.nick == "Test")
@@ -37,12 +33,9 @@ class UsersRestControllerTests {
 
     @Test
     @Order(2)
-    fun putUser() {
+    suspend fun putUser() {
         usersRestController.putUser(UserRequest("NewNick", null))
-        val response = usersRestController.getUser()
-        assert(response.statusCode == HttpStatus.OK)
-        assert(response.body != null)
-        val user = response.body!!
+        val user = usersRestController.getUser()
         assert(user.isEmailVerified)
         assert(user.email == "test@test.pl")
         assert(user.nick == "NewNick")

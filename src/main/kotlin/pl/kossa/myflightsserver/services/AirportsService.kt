@@ -13,12 +13,13 @@ class AirportsService {
     @Autowired
     private lateinit var repository: AirportsRepository
 
-    fun getAirportsByUserId(uid: String) = repository.findByUserId(uid).toList()
+    suspend fun getAirportsByUserId(userId: String) = repository.findAirportsByUserId(userId)
 
-    fun getAirportById(airportId: Int, uid: String) = repository.findOneByAirportId(airportId, uid)
+    suspend fun getAirportById(userId: String, airportId: String) =
+        repository.findAirportByUserIdAndAirportId(userId, airportId)
             ?: throw NotFoundException("Airport with id '$airportId' not found.")
 
-    fun saveAirport(airport: Airport) = repository.save(airport)
+    suspend fun saveAirport(airport: Airport) = repository.save(airport)
 
-    fun deleteAirportById(airportId: Int) = repository.deleteById(airportId)
+    suspend fun deleteAirportById(airportId: String) = repository.deleteById(airportId)
 }

@@ -1,78 +1,87 @@
 package pl.kossa.myflightsserver.datasource
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import pl.kossa.myflightsserver.data.models.Airport
 import pl.kossa.myflightsserver.repositories.AirportsRepository
-import java.util.*
 
 class AirportsRepositoryMock : AirportsRepository {
 
     private val airports = arrayListOf<Airport>()
 
-    override fun findByUserId(uid: String): Iterable<Airport> = airports.filter { it.userId == uid }
+    override suspend fun findAirportsByUserId(userId: String): List<Airport> = airports.filter { it.userId == userId }
 
-    override fun findOneByAirportId(airportId: Int, uid: String): Airport? = airports.find { it.airportId == airportId && it.userId == uid }
+    override suspend fun findAirportByUserIdAndAirportId(userId: String, airportId: String): Airport? =
+        airports.find { it.userId == userId && it.airportId == airportId }
 
-    override fun <S : Airport?> save(entity: S): S {
+    override suspend fun deleteAll(entities: Iterable<Airport>) {
+        airports.removeAll(entities)
+    }
+
+    override suspend fun <S : Airport> deleteAll(entityStream: Flow<S>) {
+        airports.removeAll(entityStream.toList())
+    }
+
+    override suspend fun deleteAllById(ids: Iterable<String>) {
+        deleteAll(airports.filter { it.airportId in ids })
+    }
+
+    override suspend fun deleteById(id: String) {
+        deleteAll(airports.filter { it.airportId == id })
+    }
+
+    override suspend fun existsById(id: String): Boolean {
+        return airports.find { it.airportId == id } != null
+    }
+
+    override fun findAll(): Flow<Airport> = flow { airports }
+
+    override fun findAllById(ids: Iterable<String>): Flow<Airport> = flow { airports.filter { it.airportId in ids } }
+
+    override fun findAllById(ids: Flow<String>): Flow<Airport> =
+        flow { airports.filter { it.airportId in ids.toList() } }
+
+    override suspend fun findById(id: String): Airport? = airports.find { it.airportId == id }
+
+    override suspend fun <S : Airport> save(entity: S): Airport {
         (entity as? Airport)?.let {
-            if (entity.airportId > 0) {
-                val found = airports.find { it.airportId == entity.airportId }
-                if (found != null) airports.remove(found)
+            airports.find { it.airportId == entity.airportId }?.let { found ->
+                airports.remove(found)
             }
-            airports.add(it.copy(airportId = airports.size + 1))
+            airports.add(it)
         }
         return entity
     }
 
-    override fun <S : Airport?> saveAll(entities: MutableIterable<S>): MutableIterable<S> {
+    override fun <S : Airport> saveAll(entities: Iterable<S>): Flow<S> {
         entities.forEach { entity ->
             (entity as? Airport)?.let {
-                if (entity.airportId > 0) {
-                    val found = airports.find { it.airportId == entity.airportId }
-                    if (found != null) airports.remove(found)
+                airports.find { it.airportId == entity.airportId }?.let { found ->
+                    airports.remove(found)
                 }
-                airports.add(it.copy(airportId = airports.size + 1))
+                airports.add(it)
             }
         }
-        return entities
+        return flow { entities }
     }
 
-    override fun findAll(): MutableIterable<Airport> = airports
+    override fun <S : Airport> saveAll(entityStream: Flow<S>): Flow<S> {
+        entityStream.onEach {
+            save(it)
+        }
+        return entityStream
+    }
 
-    override fun findAllById(ids: MutableIterable<Int>): MutableIterable<Airport> = airports.filter { ids.contains(it.airportId) }.toMutableList()
+    override suspend fun count(): Long = airports.size.toLong()
 
-    override fun count(): Long = airports.size.toLong()
-
-    override fun delete(entity: Airport) {
+    override suspend fun delete(entity: Airport) {
         airports.remove(entity)
     }
 
-    override fun deleteAll(entities: MutableIterable<Airport>) {
-        entities.forEach {
-            airports.remove(it)
-        }
-    }
-
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
         airports.clear()
-    }
-
-    override fun deleteById(id: Int) {
-        val airport = airports.find { it.airportId == id }
-        airport?.let {
-            airports.remove(it)
-        }
-    }
-
-    override fun existsById(id: Int): Boolean {
-        return airports.find { it.airportId == id } != null
-    }
-
-    override fun findById(id: Int): Optional<Airport> {
-        val airport = airports.find { it.airportId == id }
-        if (airport != null) {
-            return Optional.of(airport)
-        }
-        return Optional.empty()
     }
 
 }

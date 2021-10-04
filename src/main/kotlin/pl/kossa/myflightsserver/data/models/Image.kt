@@ -1,20 +1,26 @@
 package pl.kossa.myflightsserver.data.models
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+import javax.validation.constraints.NotNull
 
-@Entity
-@Table(name = "Images")
+//@Entity
+//@Table(name = "Images")
+@Document
 data class Image(
     @Id
-    @Column(name = "ImageId", columnDefinition = "varchar(200)")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     val imageId: String,
 
-    @Column(name = "Url", columnDefinition = "varchar(200)")
+//    @Column(name = "Url", columnDefinition = "varchar(200)")
+    @NotNull
     val url: String,
 
-    @Column(name = "ThumbnailUrl", columnDefinition = "varchar(200)")
-    val thumbnailUrl: String
+//    @Column(name = "ThumbnailUrl", columnDefinition = "varchar(200)")
+    @NotNull
+    val thumbnailUrl: String,
+
+    @NotNull
+    val userId: String
 )

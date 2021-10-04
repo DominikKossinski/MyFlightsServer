@@ -6,23 +6,27 @@ import javax.validation.constraints.Past
 import javax.validation.constraints.Size
 
 data class FlightRequest(
-        @Size(max = 500)
-        val note: String?,
+    @Size(max = 1_000)
+    val note: String?,
 
-        @Size(min = 0)
-        val distance: Int?,
+    @Size(min = 0)
+    val distance: Int?,
 
-        val image: Image?,
+    val image: Image?,
 
-        @Past
-        val startDate: Date,
+    @Past
+    val startDate: Date,
 
-        @Past
-        val endDate: Date,
+    @Past
+    val endDate: Date,
 
-        val airplaneId: Int,
+    val airplaneId: String,
 
-        val departureRunwayId: Int,
+    val departureAirportId: String,
 
-        val arrivalRunwayId: Int
+    val departureRunwayId: String,
+
+    val arrivalAirportId: String,
+
+    val arrivalRunwayId: String
 )
