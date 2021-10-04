@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.UserDetails
@@ -18,9 +17,11 @@ import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import pl.kossa.myflightsserver.exceptions.ForbiddenException
+import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.services.AirplanesService
+import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
-import pl.kossa.myflightsserver.services.RunwaysService
+import java.util.*
 
 @RestController
 @RequestMapping("/api/flights")
@@ -33,59 +34,114 @@ class FlightsRestController : BaseRestController() {
     lateinit var airplanesService: AirplanesService
 
     @Autowired
-    lateinit var runwaysService: RunwaysService
+    lateinit var airportsService: AirportsService
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))])
-    ])
-    fun getUserFlights(): ResponseEntity<List<Flight>> {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            )
+        ]
+    )
+    suspend fun getUserFlights(): List<Flight> {
         val user = getUserDetails()
-        return ResponseEntity.ok(flightsService.getFlightsByUserId(user.uid))
+        return flightsService.getFlightsByUserId(user.uid)
     }
 
     @GetMapping("/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun getFlightById(@PathVariable("flightId") flightId: Int): ResponseEntity<Flight> {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun getFlightById(@PathVariable("flightId") flightId: String): Flight {
         val user = getUserDetails()
-        val flight = flightsService.getFlightById(flightId, user.uid)
-        if (flight.userId != user.uid) throw ForbiddenException()
-        return ResponseEntity.ok(flight)
+        return flightsService.getFlightById(user.uid, flightId)
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "201"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun postFlight(@RequestBody flightRequest: FlightRequest): ResponseEntity<CreatedResponse> {
+    @ResponseStatus(code = HttpStatus.CREATED)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun postFlight(@RequestBody flightRequest: FlightRequest): CreatedResponse {
         val user = getUserDetails()
         val flight = validateFlightRequest(flightRequest, user)
         val flightAdded = flightsService.saveFlight(flight)
-        return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(flightAdded.flightId))
+        return CreatedResponse(flightAdded.flightId)
     }
 
-    @PutMapping("/{flightId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping(
+        "/{flightId}",
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun putFLight(@PathVariable("flightId") flightId: Int, @RequestBody flightRequest: FlightRequest) {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun putFLight(@PathVariable("flightId") flightId: String, @RequestBody flightRequest: FlightRequest) {
         val user = getUserDetails()
-        val flight = flightsService.getFlightById(flightId, user.uid)
+        val flight = flightsService.getFlightById(user.uid, flightId)
         if (flight.userId != user.uid) throw ForbiddenException()
         val updatedFlight = validateFlightRequest(flightRequest, user, flightId)
         flightsService.saveFlight(updatedFlight)
@@ -93,28 +149,60 @@ class FlightsRestController : BaseRestController() {
 
     @DeleteMapping("/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204"),
-        ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(schema = Schema(implementation = UnauthorizedError::class))]),
-        ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(schema = Schema(implementation = ForbiddenError::class))]),
-        ApiResponse(responseCode = "404", description = "Not found", content = [Content(schema = Schema(implementation = NotFoundError::class))])
-    ])
-    fun deleteFlight(@PathVariable("flightId") flightId: Int) {
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = [Content(schema = Schema(implementation = NotFoundError::class))]
+            )
+        ]
+    )
+    suspend fun deleteFlight(@PathVariable("flightId") flightId: String) {
         val user = getUserDetails()
-        flightsService.getFlightById(flightId, user.uid)
+        flightsService.getFlightById(user.uid, flightId)
         flightsService.deleteFlightById(flightId)
     }
 
-    private fun validateFlightRequest(flightRequest: FlightRequest, user: UserDetails, flightId: Int = 0): Flight {
-        val airplane = airplanesService.getAirplaneById(flightRequest.airplaneId, user.uid)
-        if (airplane.userId != user.uid) throw ForbiddenException()
-        val arrivalRunway = runwaysService.getRunwayById(flightRequest.arrivalRunwayId)
-        if (arrivalRunway.airport.userId != user.uid) throw ForbiddenException()
-        val departureRunway = runwaysService.getRunwayById(flightRequest.departureRunwayId)
-        if (departureRunway.airport.userId != user.uid) throw ForbiddenException()
+    private suspend fun validateFlightRequest(
+        flightRequest: FlightRequest,
+        user: UserDetails,
+        flightId: String = UUID.randomUUID().toString()
+    ): Flight {
+        val airplane = airplanesService.getAirplaneById(user.uid, flightRequest.airplaneId)
+
+        val departureAirport = airportsService.getAirportById(flightRequest.departureAirportId, user.uid)
+        val departureRunway = departureAirport.runways.find { it.runwayId == flightRequest.departureRunwayId }
+            ?: throw NotFoundException("Runway with id '${flightRequest.departureRunwayId}' not found.")
+
+        val arrivalAirport = airportsService.getAirportById(flightRequest.arrivalAirportId, user.uid)
+        val arrivalRunway = arrivalAirport.runways.find { it.runwayId == flightRequest.arrivalAirportId }
+            ?: throw NotFoundException("Runway with id '${flightRequest.arrivalRunwayId}' not found.")
+
         return Flight(
-            flightId, flightRequest.note, flightRequest.distance, flightRequest.image,
-            flightRequest.startDate, flightRequest.endDate, user.uid, airplane, departureRunway, arrivalRunway
+            flightId,
+            flightRequest.note,
+            flightRequest.distance,
+            flightRequest.image,
+            flightRequest.startDate,
+            flightRequest.endDate,
+            user.uid,
+            airplane,
+            departureAirport,
+            departureRunway,
+            arrivalAirport,
+            arrivalRunway
         )
     }
 }

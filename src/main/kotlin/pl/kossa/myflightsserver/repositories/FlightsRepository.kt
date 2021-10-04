@@ -1,14 +1,11 @@
 package pl.kossa.myflightsserver.repositories
 
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import pl.kossa.myflightsserver.data.models.Flight
 
-interface FlightsRepository : CrudRepository<Flight, Int> {
+interface FlightsRepository : CoroutineCrudRepository<Flight, String> {
 
-    @Query("FROM Flight WHERE userId = ?1")
-    fun findByUserId(uid: String): Iterable<Flight>
+    suspend fun findAllByUserId(userId: String): List<Flight>
 
-    @Query("FROM Flight WHERE flightId = ?1 AND userId = ?2")
-    fun findOneByFlightId(flightId: Int, uid: String): Flight?
+    suspend fun findFlightByUserIdAndFlightId(userId: String, flightId: String): Flight?
 }

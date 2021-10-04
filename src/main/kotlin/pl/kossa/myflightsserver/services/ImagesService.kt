@@ -11,8 +11,8 @@ class ImagesService {
     @Autowired
     private lateinit var repository: ImagesRepository
 
-    fun saveImage(image: Image) = repository.save(image)
+    suspend fun saveImage(image: Image) = repository.save(image)
 
-    fun deleteByImageId(imageId: String) = repository.deleteById(imageId)
+    suspend fun deleteByImageId(imageId: String) = repository.deleteById(imageId)
 
 }

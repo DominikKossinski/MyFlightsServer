@@ -5,9 +5,18 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import pl.kossa.myflightsserver.datasource.*
-import pl.kossa.myflightsserver.repositories.*
-import pl.kossa.myflightsserver.services.*
+import pl.kossa.myflightsserver.datasource.AirplanesRepositoryMock
+import pl.kossa.myflightsserver.datasource.AirportsRepositoryMock
+import pl.kossa.myflightsserver.datasource.FlightsRepositoryMock
+import pl.kossa.myflightsserver.datasource.UsersRepositoryMock
+import pl.kossa.myflightsserver.repositories.AirplanesRepository
+import pl.kossa.myflightsserver.repositories.AirportsRepository
+import pl.kossa.myflightsserver.repositories.FlightsRepository
+import pl.kossa.myflightsserver.repositories.UsersRepository
+import pl.kossa.myflightsserver.services.AirplanesService
+import pl.kossa.myflightsserver.services.AirportsService
+import pl.kossa.myflightsserver.services.FlightsService
+import pl.kossa.myflightsserver.services.UsersService
 import javax.sql.DataSource
 
 @Profile("test")
@@ -49,16 +58,6 @@ class DataSourceTestConfig {
     @Bean
     fun airportsService(): AirportsService {
         return AirportsService()
-    }
-
-    @Bean
-    fun runwaysRepository(): RunwaysRepository {
-        return RunwaysRepositoryMock()
-    }
-
-    @Bean
-    fun runwaysService(): RunwaysService {
-        return RunwaysService()
     }
 
     @Bean

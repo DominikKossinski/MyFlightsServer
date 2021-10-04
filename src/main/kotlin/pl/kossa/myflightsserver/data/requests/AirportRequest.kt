@@ -2,6 +2,7 @@ package pl.kossa.myflightsserver.data.requests
 
 import pl.kossa.myflightsserver.data.models.Airport
 import pl.kossa.myflightsserver.data.models.Image
+import pl.kossa.myflightsserver.data.models.Runway
 import javax.validation.constraints.Size
 
 data class AirportRequest(
@@ -19,7 +20,17 @@ data class AirportRequest(
     val image: Image?
 ) {
 
-    fun toAirport(airportId: Int, userId: String): Airport {
-        return Airport(airportId, name, city, icaoCode, towerFrequency, groundFrequency, image, userId)
+    fun toAirport(airportId: String, userId: String): Airport {
+        return Airport(
+            airportId,
+            name,
+            city,
+            icaoCode,
+            towerFrequency,
+            groundFrequency,
+            image,
+            HashSet<Runway>(),
+            userId
+        )
     }
 }

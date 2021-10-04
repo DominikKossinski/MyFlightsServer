@@ -12,8 +12,8 @@ class UsersService {
     private lateinit var repository: UsersRepository
 
 
-    fun getUserByEmail(email: String) = repository.findOneByEmail(email)
+    suspend fun getUserByEmail(email: String) = repository.findByEmail(email)
 
-    fun saveUser(user: User) = repository.save(user)
+    suspend fun saveUser(user: User) = repository.save(user)
 
 }

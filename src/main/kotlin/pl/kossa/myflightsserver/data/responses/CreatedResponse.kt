@@ -1,5 +1,5 @@
 package pl.kossa.myflightsserver.data.responses
 
 data class CreatedResponse(
-        val entityId: Int
+    val entityId: String
 )

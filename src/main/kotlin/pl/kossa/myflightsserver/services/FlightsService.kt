@@ -12,14 +12,14 @@ class FlightsService {
     @Autowired
     private lateinit var repository: FlightsRepository
 
-    fun getFlightsByUserId(uid: String) = repository.findByUserId(uid).toList()
+    suspend fun getFlightsByUserId(uid: String) = repository.findAllByUserId(uid)
 
-    fun getFlightById(flightId: Int, uid: String) = repository.findOneByFlightId(flightId, uid)
-            ?: throw NotFoundException("Flight with id '$flightId' not found.")
+    suspend fun getFlightById(uid: String, flightId: String) = repository.findFlightByUserIdAndFlightId(uid, flightId)
+        ?: throw NotFoundException("Flight with id '$flightId' not found.")
 
-    fun saveFlight(flight: Flight) = repository.save(flight)
+    suspend fun saveFlight(flight: Flight) = repository.save(flight)
 
-    fun deleteFlightById(flightId: Int) = repository.deleteById(flightId)
+    suspend fun deleteFlightById(flightId: String) = repository.deleteById(flightId)
 
 
 }
