@@ -25,7 +25,7 @@ class AirplanesRestControllerTests {
     @Test
     @Order(1)
     suspend fun noAirplanesOnStart() {
-        val response = airplanesRestController.getUserAirplanes()
+        val response = airplanesRestController.getUserAirplanes("")
         assert(response.isEmpty())
     }
 
@@ -60,7 +60,7 @@ class AirplanesRestControllerTests {
     @Test
     @Order(5)
     suspend fun getUserAirplanes() {
-        val airplanes = airplanesRestController.getUserAirplanes()
+        val airplanes = airplanesRestController.getUserAirplanes("")
         checkAirplanes(airplanes[0], airplaneToPost)
     }
 

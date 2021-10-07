@@ -44,9 +44,15 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUserAirports(): List<Airport> {
+    suspend fun getUserAirports(
+        @RequestParam(
+            name = "filter",
+            defaultValue = "",
+            required = false
+        ) filter: String
+    ): List<Airport> {
         val user = getUserDetails()
-        return airportsService.getAirportsByUserId(user.uid)
+        return airportsService.getAirportsByUserId(user.uid, filter)
     }
 
     @GetMapping("/{airportId}", produces = [MediaType.APPLICATION_JSON_VALUE])

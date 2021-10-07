@@ -11,8 +11,11 @@ class AirplanesRepositoryMock : AirplanesRepository {
 
     private val airplanes = arrayListOf<Airplane>()
 
-    override suspend fun findAirplanesByUserId(userId: String): List<Airplane> =
-        airplanes.filter { it.userId == userId }
+    override suspend fun findAirplaneByUserIdAndNameContainingIgnoreCase(userId: String, name: String): List<Airplane> {
+        //TODO("Not yet implemented")
+        return emptyList()
+    }
+
 
     override suspend fun findAirplaneByUserIdAndAirplaneId(userId: String, airplaneId: String): Airplane? =
         airplanes.find { it.userId == userId && it.airplaneId == airplaneId }

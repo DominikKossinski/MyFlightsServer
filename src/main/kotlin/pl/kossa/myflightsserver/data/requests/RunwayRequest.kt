@@ -20,7 +20,7 @@ data class RunwayRequest(
 
     val image: Image?,
 ) {
-    fun toRunway(runwayId: String): Runway {
-        return Runway(runwayId, name, length, heading, ilsFrequency, image)
+    fun toRunway(runwayId: String, userId: String): Runway {
+        return Runway(runwayId, name, length, heading, ilsFrequency, HashSet(), image, userId)
     }
 }

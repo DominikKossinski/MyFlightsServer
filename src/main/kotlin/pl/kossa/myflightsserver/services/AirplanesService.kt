@@ -12,7 +12,8 @@ class AirplanesService {
     @Autowired
     private lateinit var repository: AirplanesRepository
 
-    suspend fun getAirplanesByUserId(userId: String) = repository.findAirplanesByUserId(userId)
+    suspend fun getAirplanesByUserId(userId: String, filter: String) =
+        repository.findAirplaneByUserIdAndNameContainingIgnoreCase(userId, filter)
 
     suspend fun getAirplaneById(uid: String, airplaneId: String) =
         repository.findAirplaneByUserIdAndAirplaneId(uid, airplaneId)

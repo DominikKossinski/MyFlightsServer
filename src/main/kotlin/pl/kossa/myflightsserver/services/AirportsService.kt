@@ -13,7 +13,8 @@ class AirportsService {
     @Autowired
     private lateinit var repository: AirportsRepository
 
-    suspend fun getAirportsByUserId(userId: String) = repository.findAirportsByUserId(userId)
+    suspend fun getAirportsByUserId(userId: String, filter: String) =
+        repository.findAirportByUserIdAndIcaoCodeOrCity(userId, filter, filter)
 
     suspend fun getAirportById(userId: String, airportId: String) =
         repository.findAirportByUserIdAndAirportId(userId, airportId)

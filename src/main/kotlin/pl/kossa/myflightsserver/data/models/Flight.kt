@@ -40,7 +40,6 @@ data class Flight(
 
     val departureRunway: Runway,
 
-
     val arrivalAirport: Airport,
 
     val arrivalRunway: Runway

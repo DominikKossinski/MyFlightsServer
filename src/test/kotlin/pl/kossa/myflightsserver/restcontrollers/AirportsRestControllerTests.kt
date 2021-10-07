@@ -25,7 +25,7 @@ class AirportsRestControllerTests {
     @Test
     @Order(1)
     suspend fun noAirportsOnStart() {
-        val airports = airportRestController.getUserAirports()
+        val airports = airportRestController.getUserAirports("")
         assert(airports.isEmpty())
     }
 
@@ -62,7 +62,7 @@ class AirportsRestControllerTests {
     @Test
     @Order(5)
     suspend fun getUserAirport() {
-        val airports = airportRestController.getUserAirports()
+        val airports = airportRestController.getUserAirports("")
         checkAirports(airports[0], airportToPost)
     }
 
