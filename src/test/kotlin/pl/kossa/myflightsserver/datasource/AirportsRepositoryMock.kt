@@ -10,8 +10,15 @@ import pl.kossa.myflightsserver.repositories.AirportsRepository
 class AirportsRepositoryMock : AirportsRepository {
 
     private val airports = arrayListOf<Airport>()
+    override suspend fun findAirportByUserIdAndIcaoCodeOrCity(
+        userId: String,
+        icaoCode: String,
+        city: String
+    ): List<Airport> {
+        // tODO
+        return emptyList()
+    }
 
-    override suspend fun findAirportsByUserId(userId: String): List<Airport> = airports.filter { it.userId == userId }
 
     override suspend fun findAirportByUserIdAndAirportId(userId: String, airportId: String): Airport? =
         airports.find { it.userId == userId && it.airportId == airportId }

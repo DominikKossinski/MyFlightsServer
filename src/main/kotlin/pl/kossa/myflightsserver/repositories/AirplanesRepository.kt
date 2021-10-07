@@ -5,7 +5,7 @@ import pl.kossa.myflightsserver.data.models.Airplane
 
 interface AirplanesRepository : CoroutineCrudRepository<Airplane, String> {
 
-    suspend fun findAirplanesByUserId(userId: String): List<Airplane>
+    suspend fun findAirplaneByUserIdAndNameContainingIgnoreCase(userId: String, name: String): List<Airplane>
 
     suspend fun findAirplaneByUserIdAndAirplaneId(userId: String, airplaneId: String): Airplane?
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.data.requests.AirplaneRequest
+import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
@@ -42,9 +43,15 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUserAirplanes(): List<Airplane> {
+    suspend fun getUserAirplanes(
+        @RequestParam(
+            name = "filter",
+            defaultValue = "",
+            required = false
+        ) filter: String
+    ): List<Airplane> {
         val user = getUserDetails()
-        return airplanesService.getAirplanesByUserId(user.uid)
+        return airplanesService.getAirplanesByUserId(user.uid, filter.lowercase())
     }
 
     @GetMapping("/{airplaneId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -90,7 +97,7 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): Airplane {
+    suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): CreatedResponse {
         val user = getUserDetails()
         val airplane = Airplane(
             UUID.randomUUID().toString(),
@@ -100,7 +107,8 @@ class AirplanesRestController : BaseRestController() {
             airplaneRequest.image,
             user.uid
         )
-        return airplanesService.saveAirplane(airplane)
+        val newId = airplanesService.saveAirplane(airplane).airplaneId
+        return CreatedResponse(newId)
     }
 
     @PutMapping(

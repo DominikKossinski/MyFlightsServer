@@ -1,4 +1,4 @@
-GET http://localhost:8080/api/airports
+GET http://localhost:8080/api/airports?filter=ep
 Content-Type: application/json
 Accept: */*
 Authorization: Bearer {{token}}
@@ -10,12 +10,25 @@ Accept: */*
 Authorization: Bearer {{token}}
 
 {
-  "name": "Katowice Pyrzowice",
-  "city": "Katowice",
-  "icaoCode": "EPKT",
+  "name": "Okęcie",
+  "city": "Warszawa",
+  "icaoCode": "EPWA",
   "towerFrequency": "112.4",
   "groundFrequency": "119.6",
   "image": null
+}
+
+###
+POST http://localhost:8080/api/airports/{{airportId}}/runways
+Content-Type: application/json
+Accept: */*
+Authorization: Bearer {{token}}
+
+{
+  "name": "27",
+  "length": 500,
+  "heading": 270,
+  "ilsFrequency": "114.8"
 }
 
 ###
@@ -23,3 +36,13 @@ GET  http://localhost:8080/api/airports/{{airportId}}
 Content-Type: application/json
 Accept: */*
 Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8080/api/airplanes?filter=1
+Content-Type: application/json
+Accept: */*
+Authorization: Bearer {{token}}
+
+
+
+

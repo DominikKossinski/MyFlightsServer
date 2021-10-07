@@ -35,10 +35,10 @@ class FlightsRestControllerTests {
     @Autowired
     private lateinit var airplanesRestController: AirplanesRestController
 
-    private val departureRunway = Runway("1", "36L", 3300, 357, null, null)
+    private val departureRunway = Runway("1", "36L", 3300, 357, null, HashSet(), null, "1")
     private val departureAirport =
         Airport("1", "Okęcie", "Warsaw", "EPWA", "119.50", "119.00", null, HashSet(), "1")
-    private val arrivalRunway = Runway("2", "35L", 3500, 350, "119.50", null)
+    private val arrivalRunway = Runway("2", "35L", 3500, 350, "119.50", HashSet(), null, "1")
     private val arrivalAirport =
         Airport("2", "Katowice", "Katowice", "EPKT", "118.50", "121.00", null, HashSet(), "1")
     private val airplane = Airplane("1", "Airbus A380", 300, 200, null, "1")
@@ -133,7 +133,7 @@ class FlightsRestControllerTests {
     @Order(2)
     suspend fun noFlightsOnStart() {
         val flights = flightsRestController.getUserFlights()
-        assert(flights.isEmpty() ?: false)
+        assert(flights.isEmpty())
     }
 
     @Test
