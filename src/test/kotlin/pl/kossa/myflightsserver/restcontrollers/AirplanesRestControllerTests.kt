@@ -27,8 +27,8 @@ class AirplanesRestControllerTests {
     @Autowired
     private lateinit var airplanesRestController: AirplanesRestController
     private var airplaneId = ""
-    private val airplaneToPost = Airplane("1", "Airbus A380", 300, 200, null, "1")
-    private val airplaneToPut = Airplane("1", "Airbus A320", 200, 300, null, "1")
+    private val airplaneToPost = Airplane("2", "Airbus A380", 300, 200, null, "1")
+    private val airplaneToPut = Airplane("2", "Airbus A320", 200, 300, null, "1")
 
     private val testCoroutineDispatcher = TestCoroutineDispatcher()
 
