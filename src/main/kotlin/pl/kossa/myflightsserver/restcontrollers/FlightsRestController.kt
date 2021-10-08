@@ -182,12 +182,12 @@ class FlightsRestController : BaseRestController() {
     ): Flight {
         val airplane = airplanesService.getAirplaneById(user.uid, flightRequest.airplaneId)
 
-        val departureAirport = airportsService.getAirportById(flightRequest.departureAirportId, user.uid)
+        val departureAirport = airportsService.getAirportById(user.uid, flightRequest.departureAirportId)
         val departureRunway = departureAirport.runways.find { it.runwayId == flightRequest.departureRunwayId }
             ?: throw NotFoundException("Runway with id '${flightRequest.departureRunwayId}' not found.")
 
-        val arrivalAirport = airportsService.getAirportById(flightRequest.arrivalAirportId, user.uid)
-        val arrivalRunway = arrivalAirport.runways.find { it.runwayId == flightRequest.arrivalAirportId }
+        val arrivalAirport = airportsService.getAirportById(user.uid, flightRequest.arrivalAirportId)
+        val arrivalRunway = arrivalAirport.runways.find { it.runwayId == flightRequest.arrivalRunwayId }
             ?: throw NotFoundException("Runway with id '${flightRequest.arrivalRunwayId}' not found.")
 
         return Flight(
