@@ -12,8 +12,7 @@ class AirplanesRepositoryMock : AirplanesRepository {
     private val airplanes = arrayListOf<Airplane>()
 
     override suspend fun findAirplaneByUserIdAndNameContainingIgnoreCase(userId: String, name: String): List<Airplane> {
-        //TODO("Not yet implemented")
-        return emptyList()
+        return airplanes.filter { it.userId == userId && it.name.lowercase().contains(name.lowercase()) }
     }
 
 

@@ -64,7 +64,7 @@ class RunwaysRestControllerTests {
                     airport.image
                 )
             )
-            airportId = response.body?.entityId ?: ""
+            airportId = response.entityId
         }
     }
 

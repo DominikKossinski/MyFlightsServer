@@ -1,5 +1,11 @@
 package pl.kossa.myflightsserver.restcontrollers
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,81 +17,112 @@ import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.data.requests.AirplaneRequest
 import pl.kossa.myflightsserver.exceptions.NotFoundException
 
+@ExperimentalCoroutinesApi
 @ActiveProfiles("test")
 @SpringBootTest(classes = [FirebaseTestConfig::class, DataSourceTestConfig::class, RestControllersTestConfig::class])
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AirplanesRestControllerTests {
 
     @Autowired
     private lateinit var airplanesRestController: AirplanesRestController
+    private var airplaneId = ""
+    private val airplaneToPost = Airplane("2", "Airbus A380", 300, 200, null, "1")
+    private val airplaneToPut = Airplane("2", "Airbus A320", 200, 300, null, "1")
 
-    private val airplaneToPost = Airplane("1", "Airbus A380", 300, 200, null, "1")
-    private val airplaneToPut = Airplane("1", "Airbus A320", 200, 300, null, "1")
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+
+    @BeforeAll
+    fun setup() {
+        Dispatchers.setMain(testCoroutineDispatcher)
+    }
+
+    @AfterAll
+    fun clear() {
+        Dispatchers.resetMain()
+        testCoroutineDispatcher.cleanupTestCoroutines()
+    }
 
     @Test
     @Order(1)
-    suspend fun noAirplanesOnStart() {
-        val response = airplanesRestController.getUserAirplanes("")
-        assert(response.isEmpty())
+    fun noAirplanesOnStart() {
+        runBlockingTest {
+            val response = airplanesRestController.getUserAirplanes("")
+            assert(response.isEmpty())
+        }
     }
 
     @Test
     @Order(2)
-    suspend fun airplaneNotFound() {
-        assertThrows<NotFoundException> {
-            airplanesRestController.getAirplaneById("1")
+    fun airplaneNotFound() {
+        runBlockingTest {
+            assertThrows<NotFoundException> {
+                airplanesRestController.getAirplaneById("1")
+            }
         }
     }
 
     @Test
     @Order(3)
-    suspend fun postAirplane() {
-        airplanesRestController.postAirplane(
-            AirplaneRequest(
-                airplaneToPost.name,
-                airplaneToPost.maxSpeed,
-                airplaneToPost.weight,
-                airplaneToPost.image
+    fun postAirplane() {
+        runBlockingTest {
+            val response = airplanesRestController.postAirplane(
+                AirplaneRequest(
+                    airplaneToPost.name,
+                    airplaneToPost.maxSpeed,
+                    airplaneToPost.weight,
+                    airplaneToPost.image
+                )
             )
-        )
+            airplaneId = response.entityId
+        }
     }
 
     @Test
     @Order(4)
-    suspend fun getAirplane() {
-        val airplane = airplanesRestController.getAirplaneById(airplaneToPost.airplaneId)
-        checkAirplanes(airplane, airplaneToPost)
+    fun getAirplane() {
+        runBlockingTest {
+            val airplane = airplanesRestController.getAirplaneById(airplaneId)
+            checkAirplanes(airplane, airplaneToPost)
+        }
     }
 
     @Test
     @Order(5)
-    suspend fun getUserAirplanes() {
-        val airplanes = airplanesRestController.getUserAirplanes("")
-        checkAirplanes(airplanes[0], airplaneToPost)
+    fun getUserAirplanes() {
+        runBlockingTest {
+            val airplanes = airplanesRestController.getUserAirplanes("")
+            println(airplanes)
+            checkAirplanes(airplanes[0], airplaneToPost)
+        }
     }
 
     @Test
     @Order(6)
-    suspend fun putAirplane() {
-        airplanesRestController.putAirplane(
-            airplaneToPut.airplaneId,
-            AirplaneRequest(airplaneToPut.name, airplaneToPut.maxSpeed, airplaneToPut.weight, airplaneToPut.image)
-        )
-        val airplane = airplanesRestController.getAirplaneById(airplaneToPut.airplaneId)
-        checkAirplanes(airplane, airplaneToPut)
+    fun putAirplane() {
+        runBlockingTest {
+            airplanesRestController.putAirplane(
+                airplaneId,
+                AirplaneRequest(airplaneToPut.name, airplaneToPut.maxSpeed, airplaneToPut.weight, airplaneToPut.image)
+            )
+            val airplane = airplanesRestController.getAirplaneById(airplaneId)
+            checkAirplanes(airplane, airplaneToPut)
+        }
     }
 
     @Test
     @Order(7)
-    suspend fun deleteAirplane() {
-        airplanesRestController.deleteAirplane(airplaneToPost.airplaneId)
-        assertThrows<NotFoundException> {
-            airplanesRestController.deleteAirplane(airplaneToPost.airplaneId)
+    fun deleteAirplane() {
+        runBlockingTest {
+            airplanesRestController.deleteAirplane(airplaneId)
+            assertThrows<NotFoundException> {
+                airplanesRestController.deleteAirplane(airplaneId)
+            }
         }
     }
 
     private fun checkAirplanes(airplane: Airplane, checkAirplane: Airplane) {
-        assert(airplane.airplaneId == checkAirplane.airplaneId)
+        assert(airplane.airplaneId == airplaneId)
         assert(airplane.name == checkAirplane.name)
         assert(airplane.maxSpeed == checkAirplane.maxSpeed)
         assert(airplane.weight == checkAirplane.weight)

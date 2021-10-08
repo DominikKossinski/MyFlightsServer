@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Airport
@@ -82,6 +81,7 @@ class AirportsRestController : BaseRestController() {
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "201"),
@@ -97,10 +97,10 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): ResponseEntity<CreatedResponse> {
+    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): CreatedResponse {
         val user = getUserDetails()
         val airport = airportsService.saveAirport(airportRequest.toAirport(UUID.randomUUID().toString(), user.uid))
-        return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(airport.airportId))
+        return CreatedResponse(airport.airportId)
     }
 
     @PutMapping(

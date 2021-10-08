@@ -15,8 +15,11 @@ class AirportsRepositoryMock : AirportsRepository {
         icaoCode: String,
         city: String
     ): List<Airport> {
-        // tODO
-        return emptyList()
+        return airports.filter {
+            it.userId == userId &&
+                    (it.icaoCode.lowercase().contains(icaoCode.lowercase()) || it.name.lowercase()
+                        .contains(city.lowercase()))
+        }
     }
 
 
