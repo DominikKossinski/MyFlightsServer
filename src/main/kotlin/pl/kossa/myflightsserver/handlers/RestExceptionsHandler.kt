@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import pl.kossa.myflightsserver.config.ApplicationConfig
-import pl.kossa.myflightsserver.errors.ForbiddenError
-import pl.kossa.myflightsserver.errors.NotFoundError
-import pl.kossa.myflightsserver.errors.SizeLimitExceededError
-import pl.kossa.myflightsserver.errors.UnauthorizedError
+import pl.kossa.myflightsserver.errors.*
+import pl.kossa.myflightsserver.exceptions.ExistingFlightsException
 import pl.kossa.myflightsserver.exceptions.ForbiddenException
 import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.exceptions.UnauthorizedException
@@ -51,5 +49,13 @@ class RestExceptionsHandler {
     ): ResponseEntity<SizeLimitExceededError> {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE.value())
             .body(SizeLimitExceededError(applicationConfig.size.toString()))
+    }
+
+    @ExceptionHandler(ExistingFlightsException::class)
+    fun handleExistingFlightsException(
+        existingFlightsException: ExistingFlightsException
+    ): ResponseEntity<ExistingFlightsError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+            .body(ExistingFlightsError(existingFlightsException.type, existingFlightsException.entityId))
     }
 }

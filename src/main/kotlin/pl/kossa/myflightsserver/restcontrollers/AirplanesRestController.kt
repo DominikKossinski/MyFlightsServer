@@ -12,10 +12,13 @@ import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.data.requests.AirplaneRequest
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
+import pl.kossa.myflightsserver.errors.ExistingEntityType
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
+import pl.kossa.myflightsserver.exceptions.ExistingFlightsException
 import pl.kossa.myflightsserver.services.AirplanesService
+import pl.kossa.myflightsserver.services.FlightsService
 import java.util.*
 import javax.validation.Valid
 
@@ -24,7 +27,10 @@ import javax.validation.Valid
 class AirplanesRestController : BaseRestController() {
 
     @Autowired
-    lateinit var airplanesService: AirplanesService
+    private lateinit var airplanesService: AirplanesService
+
+    @Autowired
+    private lateinit var flightsService: FlightsService
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -178,6 +184,12 @@ class AirplanesRestController : BaseRestController() {
     )
     suspend fun deleteAirplane(@PathVariable("airplaneId") airplaneId: String) {
         val user = getUserDetails()
+        val flights = flightsService.getFlightsByUserId(user.uid).filter {
+            it.airplane.airplaneId == airplaneId
+        }
+        if (flights.isNotEmpty()) {
+            throw ExistingFlightsException(ExistingEntityType.AIRPLANE, airplaneId)
+        }
         airplanesService.getAirplaneById(user.uid, airplaneId)
         airplanesService.deleteAirplaneById(airplaneId)
     }

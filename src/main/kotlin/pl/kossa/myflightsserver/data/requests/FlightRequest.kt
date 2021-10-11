@@ -15,10 +15,10 @@ data class FlightRequest(
     val image: Image?,
 
     @Past
-    val startDate: Date,
+    val departureDate: Date,
 
     @Past
-    val endDate: Date,
+    val arrivalDate: Date,
 
     val airplaneId: String,
 
