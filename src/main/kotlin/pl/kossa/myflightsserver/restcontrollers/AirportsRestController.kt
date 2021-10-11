@@ -12,10 +12,14 @@ import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Airport
 import pl.kossa.myflightsserver.data.requests.AirportRequest
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
+import pl.kossa.myflightsserver.errors.ExistingEntityType
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
+import pl.kossa.myflightsserver.exceptions.ExistingFlightsException
 import pl.kossa.myflightsserver.services.AirportsService
+import pl.kossa.myflightsserver.services.FlightsService
+import pl.kossa.myflightsserver.services.RunwaysService
 import java.util.*
 import javax.validation.Valid
 
@@ -25,6 +29,12 @@ class AirportsRestController : BaseRestController() {
 
     @Autowired
     private lateinit var airportsService: AirportsService
+
+    @Autowired
+    private lateinit var runwaysService: RunwaysService
+
+    @Autowired
+    private lateinit var flightsService: FlightsService
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -162,7 +172,16 @@ class AirportsRestController : BaseRestController() {
     )
     suspend fun deleteAirport(@PathVariable("airportId") airportId: String) {
         val user = getUserDetails()
-        airportsService.getAirportById(user.uid, airportId)
+        val airport = airportsService.getAirportById(user.uid, airportId)
+        val flights = flightsService.getFlightsByUserId(user.uid).filter {
+            it.departureAirport.airportId == airportId || it.arrivalAirport.airportId == airportId
+        }
+        if (flights.isNotEmpty()) {
+            throw ExistingFlightsException(ExistingEntityType.AIRPORT, airportId)
+        }
+        for (runway in airport.runways) {
+            runwaysService.deleteRunwayById(runway.runwayId)
+        }
         airportsService.deleteAirportById(airportId)
     }
 
