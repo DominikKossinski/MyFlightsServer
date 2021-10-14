@@ -11,9 +11,12 @@ class UsersService {
     @Autowired
     private lateinit var repository: UsersRepository
 
+    suspend fun getUserById(id: String) = repository.findById(id)
 
     suspend fun getUserByEmail(email: String) = repository.findByEmail(email)
 
     suspend fun saveUser(user: User) = repository.save(user)
+
+    suspend fun deleteById(userId: String) = repository.deleteById(userId)
 
 }

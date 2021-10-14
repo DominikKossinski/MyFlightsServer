@@ -17,4 +17,6 @@ interface AirportsRepository : CoroutineCrudRepository<Airport, String> {
     ): List<Airport>
 
     suspend fun findAirportByUserIdAndAirportId(userId: String, airportId: String): Airport?
+
+    suspend fun deleteAllByUserId(userId: String)
 }

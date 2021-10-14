@@ -22,4 +22,6 @@ class AirplanesService {
     suspend fun saveAirplane(airplane: Airplane) = repository.save(airplane)
 
     suspend fun deleteAirplaneById(airplaneId: String) = repository.deleteById(airplaneId)
+
+    suspend fun deleteAllByUserId(userId: String) = repository.deleteAllByUserId(userId)
 }

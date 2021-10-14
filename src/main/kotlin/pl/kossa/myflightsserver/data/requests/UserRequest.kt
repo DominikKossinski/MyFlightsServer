@@ -5,7 +5,7 @@ import javax.validation.constraints.Size
 
 data class UserRequest(
     @Size(max = 45)
-    val nick: String?,
+    val nick: String,
 
     val image: Image?
 )

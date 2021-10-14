@@ -21,5 +21,7 @@ class FlightsService {
 
     suspend fun deleteFlightById(flightId: String) = repository.deleteById(flightId)
 
+    suspend fun deleteAllByUserId(userId: String) = repository.deleteAllByUserId(userId)
+
 
 }

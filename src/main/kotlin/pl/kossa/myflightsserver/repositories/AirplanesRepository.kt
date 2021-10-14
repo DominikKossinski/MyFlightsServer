@@ -9,4 +9,6 @@ interface AirplanesRepository : CoroutineCrudRepository<Airplane, String> {
 
     suspend fun findAirplaneByUserIdAndAirplaneId(userId: String, airplaneId: String): Airplane?
 
+    suspend fun deleteAllByUserId(userId: String)
+
 }

@@ -23,4 +23,6 @@ class AirportsService {
     suspend fun saveAirport(airport: Airport) = repository.save(airport)
 
     suspend fun deleteAirportById(airportId: String) = repository.deleteById(airportId)
+
+    suspend fun deleteAllByUserId(userId: String) = repository.deleteAllByUserId(userId)
 }

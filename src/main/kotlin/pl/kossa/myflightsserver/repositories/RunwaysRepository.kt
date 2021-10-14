@@ -6,4 +6,6 @@ import pl.kossa.myflightsserver.data.models.Runway
 interface RunwaysRepository : CoroutineCrudRepository<Runway, String> {
 
     suspend fun getRunwayByUserIdAndRunwayId(userId: String, runwayId: String): Runway?
+
+    suspend fun deleteAllByUserId(userId: String)
 }

@@ -24,10 +24,10 @@ data class Flight(
     val image: Image?,
 
     @Past
-    val startDate: Date,
+    val departureDate: Date,
 
     @Past
-    val endDate: Date,
+    val arrivalDate: Date,
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank
