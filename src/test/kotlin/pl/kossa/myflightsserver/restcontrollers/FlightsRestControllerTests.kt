@@ -186,7 +186,7 @@ class FlightsRestControllerTests {
             flightId = flightsRestController.postFlight(
                 FlightRequest(
                     flightToPost.note, flightToPost.distance, flightToPost.image,
-                    flightToPost.startDate, flightToPost.endDate, airplaneId,
+                    flightToPost.departureDate, flightToPost.arrivalDate, airplaneId,
                     departureAirportId, departureRunwayId,
                     arrivalAirportId, arrivalRunwayId
                 )
@@ -220,7 +220,7 @@ class FlightsRestControllerTests {
                 flightId,
                 FlightRequest(
                     flightToPut.note, flightToPut.distance, flightToPut.image,
-                    flightToPut.startDate, flightToPut.endDate, airplaneId,
+                    flightToPut.departureDate, flightToPut.arrivalDate, airplaneId,
                     arrivalAirportId, arrivalRunwayId,
                     departureAirportId, departureRunwayId
                 )
