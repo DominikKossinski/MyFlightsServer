@@ -26,6 +26,11 @@ class AirportsRepositoryMock : AirportsRepository {
     override suspend fun findAirportByUserIdAndAirportId(userId: String, airportId: String): Airport? =
         airports.find { it.userId == userId && it.airportId == airportId }
 
+    override suspend fun deleteAllByUserId(userId: String) {
+        val toDelete = airports.filter { it.userId == userId }
+        airports.removeAll(toDelete)
+    }
+
     override suspend fun deleteAll(entities: Iterable<Airport>) {
         airports.removeAll(entities)
     }

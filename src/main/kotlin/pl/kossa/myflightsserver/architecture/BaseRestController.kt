@@ -23,7 +23,10 @@ abstract class BaseRestController {
         val dbUser = usersService.getUserByEmail(user.email)
         if (dbUser == null) {
             logger.info("Creating database user ${user.email}")
-            usersService.saveUser(User(user.uid, null, user.email, null))
+            val oldUser = usersService.getUserById(user.uid)
+            val nick = oldUser?.nick ?: ""
+            val image = oldUser?.image
+            usersService.saveUser(User(user.uid, nick, user.email, image))
             return UserDetails(user.uid, user.email, user.isEmailVerified, null, null)
         }
         return UserDetails(user.uid, user.email, user.isEmailVerified, dbUser.nick, dbUser.image)

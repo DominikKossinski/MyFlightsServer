@@ -19,4 +19,6 @@ class RunwaysService {
     suspend fun saveRunway(runway: Runway) = repository.save(runway)
 
     suspend fun deleteRunwayById(runwayId: String) = repository.deleteById(runwayId)
+
+    suspend fun deleteAllByUserId(userId: String) = repository.deleteAllByUserId(userId)
 }

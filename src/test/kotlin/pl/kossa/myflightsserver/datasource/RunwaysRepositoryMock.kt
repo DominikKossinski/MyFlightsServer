@@ -15,6 +15,11 @@ class RunwaysRepositoryMock : RunwaysRepository {
         return runways.find { it.userId == userId && it.runwayId == runwayId }
     }
 
+    override suspend fun deleteAllByUserId(userId: String) {
+        val toDelete = runways.filter { it.userId == userId }
+        runways.removeAll(toDelete)
+    }
+
     override suspend fun count(): Long = runways.size.toLong()
 
     override suspend fun delete(entity: Runway) {
