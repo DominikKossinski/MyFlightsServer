@@ -74,7 +74,7 @@ class AirportsRestControllerTests {
                     airportToPost.icaoCode,
                     airportToPost.towerFrequency,
                     airportToPost.groundFrequency,
-                    airportToPost.image
+                    airportToPost.image?.imageId
                 )
             )
             airportId = response.entityId
@@ -111,7 +111,7 @@ class AirportsRestControllerTests {
                     airportToPut.icaoCode,
                     airportToPut.towerFrequency,
                     airportToPut.groundFrequency,
-                    airportToPut.image
+                    airportToPut.image?.imageId
                 )
             )
             val airport = airportRestController.getAirportById(airportId)

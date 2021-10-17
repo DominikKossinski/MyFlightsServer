@@ -2,6 +2,7 @@ package pl.kossa.myflightsserver.data.models
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
 import javax.validation.constraints.NotBlank
@@ -21,6 +22,7 @@ data class Flight(
     @Size(min = 1)
     val distance: Int?,
 
+    @DBRef
     val image: Image?,
 
     @Past

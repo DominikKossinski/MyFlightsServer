@@ -1,6 +1,8 @@
 package pl.kossa.myflightsserver.config
 
+import com.google.cloud.storage.StorageOptions
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -69,5 +71,21 @@ class DataSourceTestConfig {
     @Bean
     fun runwaysService(): RunwaysService {
         return RunwaysService()
+    }
+
+
+    @Bean
+    fun imagesRepository(): ImagesRepository {
+        return ImagesRepositoryMock()
+    }
+
+    @Bean
+    fun imagesService(): ImagesService {
+        return ImagesService()
+    }
+
+    @Bean
+    fun storageOptions(): StorageOptions {
+        return mock(StorageOptions::class.java)
     }
 }

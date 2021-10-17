@@ -109,7 +109,9 @@ class AirportsRestController : BaseRestController() {
     )
     suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): CreatedResponse {
         val user = getUserDetails()
-        val airport = airportsService.saveAirport(airportRequest.toAirport(UUID.randomUUID().toString(), user.uid))
+        val image = airportRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        val airport =
+            airportsService.saveAirport(airportRequest.toAirport(UUID.randomUUID().toString(), image, user.uid))
         return CreatedResponse(airport.airportId)
     }
 
@@ -144,8 +146,12 @@ class AirportsRestController : BaseRestController() {
         @RequestBody @Valid airportRequest: AirportRequest
     ) {
         val user = getUserDetails()
-        airportsService.getAirportById(user.uid, airportId)
-        airportsService.saveAirport(airportRequest.toAirport(airportId, user.uid))
+        val airport = airportsService.getAirportById(user.uid, airportId)
+        if (airport.image != null && airportRequest.imageId == null) {
+            deleteImage(airport.image)
+        }
+        val image = airportRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        airportsService.saveAirport(airportRequest.toAirport(airportId, image, user.uid))
     }
 
     @DeleteMapping("/{airportId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -179,6 +185,7 @@ class AirportsRestController : BaseRestController() {
         if (flights.isNotEmpty()) {
             throw ExistingFlightsException(ExistingEntityType.AIRPORT, airportId)
         }
+        airport.image?.let { deleteImage(it) }
         for (runway in airport.runways) {
             runwaysService.deleteRunwayById(runway.runwayId)
         }

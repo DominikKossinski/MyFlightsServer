@@ -48,7 +48,7 @@ class UsersRestControllerTests {
             assert(user.isEmailVerified)
             assert(user.email == "test@test.pl")
             assert(user.nick == "Test")
-            assert(user.image == null)
+            assert(user.avatar == null)
         }
     }
 
@@ -61,7 +61,7 @@ class UsersRestControllerTests {
             assert(user.isEmailVerified)
             assert(user.email == "test@test.pl")
             assert(user.nick == "NewNick")
-            assert(user.image == null)
+            assert(user.avatar == null)
         }
     }
 }

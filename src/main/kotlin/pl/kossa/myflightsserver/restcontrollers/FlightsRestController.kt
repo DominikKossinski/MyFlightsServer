@@ -143,6 +143,9 @@ class FlightsRestController : BaseRestController() {
         val user = getUserDetails()
         val flight = flightsService.getFlightById(user.uid, flightId)
         if (flight.userId != user.uid) throw ForbiddenException()
+        if (flight.image != null && flightRequest.imageId == null) {
+            deleteImage(flight.image)
+        }
         val updatedFlight = validateFlightRequest(flightRequest, user, flightId)
         flightsService.saveFlight(updatedFlight)
     }
@@ -171,7 +174,8 @@ class FlightsRestController : BaseRestController() {
     )
     suspend fun deleteFlight(@PathVariable("flightId") flightId: String) {
         val user = getUserDetails()
-        flightsService.getFlightById(user.uid, flightId)
+        val flight = flightsService.getFlightById(user.uid, flightId)
+        flight.image?.let { deleteImage(it) }
         flightsService.deleteFlightById(flightId)
     }
 
@@ -180,6 +184,9 @@ class FlightsRestController : BaseRestController() {
         user: UserDetails,
         flightId: String = UUID.randomUUID().toString()
     ): Flight {
+        val image = flightRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+
+
         val airplane = airplanesService.getAirplaneById(user.uid, flightRequest.airplaneId)
 
         val departureAirport = airportsService.getAirportById(user.uid, flightRequest.departureAirportId)
@@ -194,7 +201,7 @@ class FlightsRestController : BaseRestController() {
             flightId,
             flightRequest.note,
             flightRequest.distance,
-            flightRequest.image,
+            image,
             flightRequest.departureDate,
             flightRequest.arrivalDate,
             user.uid,

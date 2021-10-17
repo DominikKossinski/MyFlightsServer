@@ -112,7 +112,7 @@ class FlightsRestControllerTests {
                     airplane.name,
                     airplane.maxSpeed,
                     airplane.weight,
-                    airplane.image
+                    airplane.image?.imageId
                 )
             ).entityId
 
@@ -123,7 +123,7 @@ class FlightsRestControllerTests {
                     departureAirport.icaoCode,
                     departureAirport.towerFrequency,
                     departureAirport.groundFrequency,
-                    departureAirport.image
+                    departureAirport.image?.imageId
                 )
             ).entityId
             arrivalAirportId = airportsRestController.postAirport(
@@ -133,7 +133,7 @@ class FlightsRestControllerTests {
                     arrivalAirport.icaoCode,
                     arrivalAirport.towerFrequency,
                     arrivalAirport.groundFrequency,
-                    arrivalAirport.image
+                    arrivalAirport.image?.imageId
                 )
             ).entityId
 
@@ -144,7 +144,7 @@ class FlightsRestControllerTests {
                     departureRunway.length,
                     departureRunway.heading,
                     departureRunway.ilsFrequency,
-                    departureRunway.image
+                    departureRunway.image?.imageId
                 )
             ).entityId
             arrivalRunwayId = runwaysRestController.postRunway(
@@ -154,7 +154,7 @@ class FlightsRestControllerTests {
                     arrivalRunway.length,
                     arrivalRunway.heading,
                     arrivalRunway.ilsFrequency,
-                    arrivalRunway.image
+                    arrivalRunway.image?.imageId
                 )
             ).entityId
         }
@@ -185,7 +185,7 @@ class FlightsRestControllerTests {
         runBlockingTest {
             flightId = flightsRestController.postFlight(
                 FlightRequest(
-                    flightToPost.note, flightToPost.distance, flightToPost.image,
+                    flightToPost.note, flightToPost.distance, flightToPost.image?.imageId,
                     flightToPost.departureDate, flightToPost.arrivalDate, airplaneId,
                     departureAirportId, departureRunwayId,
                     arrivalAirportId, arrivalRunwayId
@@ -219,7 +219,7 @@ class FlightsRestControllerTests {
             flightsRestController.putFLight(
                 flightId,
                 FlightRequest(
-                    flightToPut.note, flightToPut.distance, flightToPut.image,
+                    flightToPut.note, flightToPut.distance, flightToPut.image?.imageId,
                     flightToPut.departureDate, flightToPut.arrivalDate, airplaneId,
                     arrivalAirportId, arrivalRunwayId,
                     departureAirportId, departureRunwayId

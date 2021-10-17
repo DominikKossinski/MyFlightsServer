@@ -71,7 +71,7 @@ class AirplanesRestControllerTests {
                     airplaneToPost.name,
                     airplaneToPost.maxSpeed,
                     airplaneToPost.weight,
-                    airplaneToPost.image
+                    airplaneToPost.image?.imageId
                 )
             )
             airplaneId = response.entityId
@@ -103,7 +103,12 @@ class AirplanesRestControllerTests {
         runBlockingTest {
             airplanesRestController.putAirplane(
                 airplaneId,
-                AirplaneRequest(airplaneToPut.name, airplaneToPut.maxSpeed, airplaneToPut.weight, airplaneToPut.image)
+                AirplaneRequest(
+                    airplaneToPut.name,
+                    airplaneToPut.maxSpeed,
+                    airplaneToPut.weight,
+                    airplaneToPut.image?.imageId
+                )
             )
             val airplane = airplanesRestController.getAirplaneById(airplaneId)
             checkAirplanes(airplane, airplaneToPut)
