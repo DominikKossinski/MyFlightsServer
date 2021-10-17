@@ -76,7 +76,8 @@ class UsersRestController : BaseRestController() {
     )
     suspend fun putUser(@RequestBody userRequest: UserRequest) {
         val user = getUserDetails()
-        val updatedUser = User(user.uid, userRequest.nick, user.email, userRequest.image)
+        val image = userRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        val updatedUser = User(user.uid, userRequest.nick, user.email, image)
         usersService.saveUser(updatedUser)
     }
 
@@ -109,8 +110,19 @@ class UsersRestController : BaseRestController() {
         airplanesService.deleteAllByUserId(user.uid)
         runwaysService.deleteAllByUserId(user.uid)
         airportsService.deleteAllByUserId(user.uid)
+        imagesService.deleteAllByUserId(user.uid)
 
+        user.avatar?.let { deleteImage(it) }
         usersService.deleteById(user.uid)
     }
 
+    @DeleteMapping("avatar")
+    suspend fun deleteUserAvatar() {
+        val user = getUserDetails()
+        user.avatar?.let {
+            deleteImage(it)
+            val userEntity = usersService.getUserById(user.uid)
+            userEntity?.let { usersService.saveUser(userEntity.copy(avatar = null)) }
+        }
+    }
 }

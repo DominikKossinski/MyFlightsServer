@@ -92,7 +92,8 @@ class RunwaysRestController : BaseRestController() {
     ): CreatedResponse {
         val user = getUserDetails()
         val airport = airportsService.getAirportById(user.uid, airportId)
-        val runway = runwayRequest.toRunway(UUID.randomUUID().toString(), user.uid)
+        val image = runwayRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        val runway = runwayRequest.toRunway(UUID.randomUUID().toString(), image, user.uid)
         runwaysService.saveRunway(runway)
         airport.runways.add(runway)
         airportsService.saveAirport(airport)
@@ -132,9 +133,13 @@ class RunwaysRestController : BaseRestController() {
     ) {
         val user = getUserDetails()
         val airport = airportsService.getAirportById(user.uid, airportId)
-        airport.runways.find { it.runwayId == runwayId }
+        val runway = airport.runways.find { it.runwayId == runwayId }
             ?: throw NotFoundException("Runway with id '$runwayId' not found.")
-        val newRunway = runwayRequest.toRunway(runwayId, user.uid)
+        if (runway.image != null && runwayRequest.imageId == null) {
+            deleteImage(runway.image)
+        }
+        val image = runwayRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        val newRunway = runwayRequest.toRunway(runwayId, image, user.uid)
         runwaysService.saveRunway(newRunway)
     }
 
@@ -165,7 +170,7 @@ class RunwaysRestController : BaseRestController() {
     ) {
         val user = getUserDetails()
         val airport = airportsService.getAirportById(user.uid, airportId)
-        airport.runways.find { it.runwayId == runwayId }
+        val runway = airport.runways.find { it.runwayId == runwayId }
             ?: throw NotFoundException("Runway with id '$runwayId' not found.")
         val flights = flightsService.getFlightsByUserId(user.uid).filter {
             it.departureRunway.runwayId == runwayId || it.arrivalRunway.runwayId == runwayId
@@ -175,6 +180,7 @@ class RunwaysRestController : BaseRestController() {
         }
         airport.runways.removeIf { it.runwayId == runwayId }
         airportsService.saveAirport(airport)
+        runway.image?.let { deleteImage(it) }
         runwaysService.deleteRunwayById(runwayId)
     }
 

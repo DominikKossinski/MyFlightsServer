@@ -61,7 +61,7 @@ class RunwaysRestControllerTests {
                     airport.icaoCode,
                     airport.towerFrequency,
                     airport.groundFrequency,
-                    airport.image
+                    airport.image?.imageId
                 )
             )
             airportId = response.entityId
@@ -80,7 +80,7 @@ class RunwaysRestControllerTests {
                     runwayToPost.length,
                     runwayToPost.heading,
                     runwayToPost.ilsFrequency,
-                    runwayToPost.image
+                    runwayToPost.image?.imageId
                 )
             )
             runwayId = response.entityId
@@ -108,7 +108,7 @@ class RunwaysRestControllerTests {
                     runwayToPut.length,
                     runwayToPut.heading,
                     runwayToPut.ilsFrequency,
-                    runwayToPut.image
+                    runwayToPut.image?.imageId
                 )
             )
         }

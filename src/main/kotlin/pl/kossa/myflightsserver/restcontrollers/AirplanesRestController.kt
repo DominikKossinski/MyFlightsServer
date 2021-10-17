@@ -105,12 +105,13 @@ class AirplanesRestController : BaseRestController() {
     )
     suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): CreatedResponse {
         val user = getUserDetails()
+        val image = airplaneRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val airplane = Airplane(
             UUID.randomUUID().toString(),
             airplaneRequest.name,
             airplaneRequest.maxSpeed,
             airplaneRequest.weight,
-            airplaneRequest.image,
+            image,
             user.uid
         )
         val newId = airplanesService.saveAirplane(airplane).airplaneId
@@ -148,16 +149,19 @@ class AirplanesRestController : BaseRestController() {
         @RequestBody @Valid airplaneRequest: AirplaneRequest
     ) {
         val user = getUserDetails()
-        airplanesService.getAirplaneById(user.uid, airplaneId)
-        val airplane = Airplane(
-            airplaneId,
-            airplaneRequest.name,
-            airplaneRequest.maxSpeed,
-            airplaneRequest.weight,
-            airplaneRequest.image,
-            user.uid
+        val airplane = airplanesService.getAirplaneById(user.uid, airplaneId)
+        if (airplane.image != null && airplaneRequest.imageId == null) {
+            deleteImage(airplane.image)
+        }
+        val image = airplaneRequest.imageId?.let { imagesService.getImageById(user.uid, airplaneRequest.imageId) }
+        airplanesService.saveAirplane(
+            airplane.copy(
+                name = airplaneRequest.name,
+                maxSpeed = airplaneRequest.maxSpeed,
+                weight = airplaneRequest.weight,
+                image = image
+            )
         )
-        airplanesService.saveAirplane(airplane)
     }
 
     @DeleteMapping("/{airplaneId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -190,8 +194,10 @@ class AirplanesRestController : BaseRestController() {
         if (flights.isNotEmpty()) {
             throw ExistingFlightsException(ExistingEntityType.AIRPLANE, airplaneId)
         }
-        airplanesService.getAirplaneById(user.uid, airplaneId)
+        val airplane = airplanesService.getAirplaneById(user.uid, airplaneId)
+        airplane.image?.let { deleteImage(it) }
         airplanesService.deleteAirplaneById(airplaneId)
     }
+
 
 }

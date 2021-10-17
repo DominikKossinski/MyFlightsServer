@@ -18,9 +18,9 @@ data class RunwayRequest(
     @Size(max = 45)
     val ilsFrequency: String?,
 
-    val image: Image?,
+    val imageId: String?,
 ) {
-    fun toRunway(runwayId: String, userId: String): Runway {
+    fun toRunway(runwayId: String, image: Image?, userId: String): Runway {
         return Runway(runwayId, name, length, heading, ilsFrequency, HashSet(), image, userId)
     }
 }

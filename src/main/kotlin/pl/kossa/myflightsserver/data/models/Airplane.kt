@@ -2,6 +2,7 @@ package pl.kossa.myflightsserver.data.models
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -23,6 +24,7 @@ data class Airplane(
     @Size(min = 1, max = 500)
     val weight: Int?,
 
+    @DBRef
     val image: Image?,
 
     @NotNull

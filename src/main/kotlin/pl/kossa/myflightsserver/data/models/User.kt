@@ -1,6 +1,7 @@
 package pl.kossa.myflightsserver.data.models
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
@@ -12,5 +13,6 @@ data class User(
 
     val email: String?,
 
-    val image: Image?
+    @DBRef
+    val avatar: Image?
 )

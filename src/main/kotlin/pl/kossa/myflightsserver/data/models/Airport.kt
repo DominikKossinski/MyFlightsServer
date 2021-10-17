@@ -20,6 +20,7 @@ data class Airport(
 
     val groundFrequency: String?,
 
+    @DBRef
     val image: Image?,
 
     @DBRef
