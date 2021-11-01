@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.Image
+import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import java.io.ByteArrayOutputStream
@@ -45,19 +46,20 @@ class ImagesRestController : BaseRestController() {
     )
     suspend fun postImage(
         @RequestBody image: MultipartFile
-    ): ResponseEntity<Image> {
+    ): ResponseEntity<CreatedResponse> {
         val user = getUserDetails()
         val id = UUID.randomUUID().toString()
-        val name = id + StringUtils.getFilenameExtension(image.originalFilename)
+        val name = id + "." + StringUtils.getFilenameExtension(image.originalFilename)
+        logger.info("File name $name")
         val thumbnail = makeThumbnail(image)
-        val thumbnailName = name + "thumbnail"
+        val thumbnailName = id + "thumbnail." + StringUtils.getFilenameExtension(image.originalFilename)
         val url = "${getenv("IMAGE_URL")}${name}?alt=media"
         val thumbnailUrl = "${getenv("IMAGE_URL")}${thumbnailName}?alt=media"
         createInFireStorage(name, image.bytes, image.contentType)
         createInFireStorage(thumbnailName, thumbnail, image.contentType)
         //TODO add max size to image
         val imageAdded = imagesService.saveImage(Image(id, name, url, thumbnailUrl, user.uid))
-        return ResponseEntity.status(HttpStatus.CREATED).body(imageAdded)
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreatedResponse(imageAdded.imageId))
     }
 
     @PutMapping(
@@ -80,17 +82,16 @@ class ImagesRestController : BaseRestController() {
             )
         ]
     )
-
     suspend fun putImage(
         @PathVariable("imageId") imageId: String,
-        @RequestBody imageFile: MultipartFile
+        @RequestBody image: MultipartFile
     ) {
         val user = getUserDetails()
-        val image = imagesService.getImageById(user.uid, imageId)
-        val thumbnail = makeThumbnail(imageFile)
-        val thumbnailName = image.firestoreName + "thumbnail"
-        createInFireStorage(image.firestoreName, imageFile.bytes, imageFile.contentType)
-        createInFireStorage(thumbnailName, thumbnail, imageFile.contentType)
+        val imageDB = imagesService.getImageById(user.uid, imageId)
+        val thumbnail = makeThumbnail(image)
+        val thumbnailName = imageDB.firestoreName.replace(".", "thumbnail.")
+        createInFireStorage(imageDB.firestoreName, image.bytes, image.contentType)
+        createInFireStorage(thumbnailName, thumbnail, image.contentType)
     }
 
     private fun makeThumbnail(image: MultipartFile): ByteArray {

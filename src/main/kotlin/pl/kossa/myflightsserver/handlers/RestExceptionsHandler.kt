@@ -5,6 +5,7 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MaxUploadSizeExceededException
@@ -57,5 +58,16 @@ class RestExceptionsHandler {
     ): ResponseEntity<ExistingFlightsError> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
             .body(ExistingFlightsError(existingFlightsException.type, existingFlightsException.entityId))
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleMethodArgumentNotValidException(
+        methodArgumentNotValidException: MethodArgumentNotValidException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+            .body(object : ApiError() {
+                override val message = methodArgumentNotValidException.message
+                override val description = methodArgumentNotValidException.message
+            })
     }
 }

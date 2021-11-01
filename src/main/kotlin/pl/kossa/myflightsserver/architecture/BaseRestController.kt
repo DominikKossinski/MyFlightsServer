@@ -52,7 +52,7 @@ abstract class BaseRestController {
 
     protected suspend fun deleteImage(image: Image) {
         deleteFromFireStorage(image.firestoreName)
-        deleteFromFireStorage(image.firestoreName + "thumbnail")
+        deleteFromFireStorage(image.firestoreName.replace(".", "thumbnail."))
         imagesService.deleteByImageId(image.imageId)
     }
 
