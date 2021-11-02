@@ -19,6 +19,7 @@ import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.RunwaysService
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/user")
@@ -74,8 +75,14 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putUser(@RequestBody userRequest: UserRequest) {
+    suspend fun putUser(@Valid @RequestBody userRequest: UserRequest) {
         val user = getUserDetails()
+        if (userRequest.imageId == null && user.avatar != null) {
+            deleteImage(user.avatar)
+        }
+        if (userRequest.imageId != null && user.avatar != null && userRequest.imageId != user.avatar.imageId) {
+            deleteImage(user.avatar)
+        }
         val image = userRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val updatedUser = User(user.uid, userRequest.nick, user.email, image)
         usersService.saveUser(updatedUser)
@@ -116,13 +123,13 @@ class UsersRestController : BaseRestController() {
         usersService.deleteById(user.uid)
     }
 
-    @DeleteMapping("avatar")
-    suspend fun deleteUserAvatar() {
-        val user = getUserDetails()
-        user.avatar?.let {
-            deleteImage(it)
-            val userEntity = usersService.getUserById(user.uid)
-            userEntity?.let { usersService.saveUser(userEntity.copy(avatar = null)) }
-        }
-    }
+//    @DeleteMapping("avatar")
+//    suspend fun deleteUserAvatar() {
+//        val user = getUserDetails()
+//        user.avatar?.let {
+//            deleteImage(it)
+//            val userEntity = usersService.getUserById(user.uid)
+//            userEntity?.let { usersService.saveUser(userEntity.copy(avatar = null)) }
+//        }
+//    }
 }

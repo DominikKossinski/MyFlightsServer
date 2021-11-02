@@ -22,26 +22,29 @@ dependencies {
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")
     implementation("org.springframework.boot:spring-boot-starter-security:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.5.5")
+
+    //Validation
+    implementation("javax.validation:validation-api:2.0.1.Final")
 
     //Mongo
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.5.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.5")
 
     //Swagger
-    implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
-    implementation("org.springdoc:springdoc-openapi-data-rest:1.5.10")
-    implementation("org.springdoc:springdoc-openapi-security:1.5.10")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
+    implementation("org.springdoc:springdoc-openapi-ui:1.5.11")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.5.11")
+    implementation("org.springdoc:springdoc-openapi-security:1.5.11")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.11")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
 
     //Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2-native-mt")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.5.2-native-mt")
 
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.5") {
