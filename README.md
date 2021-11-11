@@ -36,7 +36,3 @@ Project uses Gradle, command to run server:
 ```
     ./gradlew bootRun
 ```
-
-## Circle CI
-
-Project uses Travis as a circle integration environment.
