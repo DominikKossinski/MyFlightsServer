@@ -14,5 +14,7 @@ data class User(
     val email: String?,
 
     @DBRef
-    val avatar: Image?
+    val avatar: Image?,
+
+    val fcmToken: String?
 )

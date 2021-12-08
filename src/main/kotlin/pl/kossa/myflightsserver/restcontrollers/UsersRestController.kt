@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.UserDetails
 import pl.kossa.myflightsserver.data.models.User
+import pl.kossa.myflightsserver.data.requests.FCMTokenRequest
 import pl.kossa.myflightsserver.data.requests.UserRequest
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
+import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
@@ -77,6 +79,7 @@ class UsersRestController : BaseRestController() {
     )
     suspend fun putUser(@Valid @RequestBody userRequest: UserRequest) {
         val user = getUserDetails()
+        val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
         if (userRequest.imageId == null && user.avatar != null) {
             deleteImage(user.avatar)
         }
@@ -84,10 +87,9 @@ class UsersRestController : BaseRestController() {
             deleteImage(user.avatar)
         }
         val image = userRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
-        val updatedUser = User(user.uid, userRequest.nick, user.email, image)
+        val updatedUser = User(user.uid, userRequest.nick, user.email, image, dbUser.fcmToken)
         usersService.saveUser(updatedUser)
     }
-
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponses(
@@ -121,6 +123,30 @@ class UsersRestController : BaseRestController() {
 
         user.avatar?.let { deleteImage(it) }
         usersService.deleteById(user.uid)
+    }
+
+    @PutMapping("fcm", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            )
+        ]
+    )
+    suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest) {
+        val user = getUserDetails()
+        val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
+        val newUser = dbUser.copy(fcmToken = fcmTokenRequest.fcmToken)
+        usersService.saveUser(newUser)
     }
 
 //    @DeleteMapping("avatar")
