@@ -1,6 +1,12 @@
 package pl.kossa.myflightsserver.data.models.ofp
 
-data class Fuel(
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+
+@Document(collection = "ofp_fuel")
+data class OFPFuel(
+    @Id
+    val fuelId: String,
     val taxi: Int,
     val enrouteBurn: Int,
     val contingency: Int,

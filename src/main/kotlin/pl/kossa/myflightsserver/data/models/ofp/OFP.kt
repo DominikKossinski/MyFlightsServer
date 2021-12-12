@@ -1,33 +1,50 @@
 package pl.kossa.myflightsserver.data.models.ofp
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.mapping.Document
+
+@Document(collection = "ofp")
 data class OFP(
-    val params: FlightPlanParams,
+    @Id
+    val ofpId: String,
+
+    @DBRef
     val general: GeneralParams,
-    val origin: Airport,
-    val destination: Airport,
-    val alternate: Alternate,
-    val navlog: List<Fix>,
-    val aircraft: Aircraft,
-    val fuel: Fuel,
+    @DBRef
+    val origin: OFPAirport,
+    @DBRef
+    val destination: OFPAirport,
+    @DBRef
+    val alternate: OFPAlternate,
+    @DBRef
+    val navlog: List<OFPFix>,
+    @DBRef
+    val aircraft: OFPAircraft,
+    @DBRef
+    val fuel: OFPFuel,
     //TODO times
     //TODO weights
     //TODO impacts
-    val crew: Crew,
+//    @DBRef
+//    val crew: Crew,
     //TODO notams
     //TODO weather
 
     //TODO files
-    val images: Images
+    @DBRef
+    val files: List<OFPFile>,
     //TODO api params
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    val userId: String
 )
 
-data class FlightPlanParams(
-    val requestId: Long,
-    val userId: Long,
-    //TODO
-)
-
+@Document
 data class GeneralParams(
+    @Id
+    val generalId: String,
     val icaoAirLine: String,
     val route: String
     //TODO

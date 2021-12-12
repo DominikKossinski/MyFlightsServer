@@ -1,4 +1,4 @@
-package pl.kossa.myflightsserver.data.models.ofp
+package pl.kossa.myflightsserver.data.requests.ofp
 
 data class Images(
     val directory: String,
