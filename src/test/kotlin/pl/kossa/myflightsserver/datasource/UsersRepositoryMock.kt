@@ -9,7 +9,7 @@ import pl.kossa.myflightsserver.repositories.UsersRepository
 
 class UsersRepositoryMock : UsersRepository {
 
-    private val users = arrayListOf(User("1", "Test", "test@test.pl", null))
+    private val users = arrayListOf(User("1", "Test", "test@test.pl", null, null))
 
     override suspend fun findByEmail(email: String): User? = users.find { it.email == email }
 
