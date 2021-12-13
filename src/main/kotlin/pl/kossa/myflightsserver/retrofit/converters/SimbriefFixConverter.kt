@@ -3,6 +3,7 @@ package pl.kossa.myflightsserver.retrofit.converters
 import org.simpleframework.xml.convert.Converter
 import org.simpleframework.xml.stream.InputNode
 import org.simpleframework.xml.stream.OutputNode
+import pl.kossa.myflightsserver.data.models.ofp.OFPWayPointType
 import pl.kossa.myflightsserver.retrofit.exceptions.OFPParsingException
 import pl.kossa.myflightsserver.retrofit.models.SimbriefFix
 
@@ -34,7 +35,7 @@ class SimbriefFixConverter : Converter<SimbriefFix> {
         val posLat = posLatV ?: throw OFPParsingException(node?.name, "pos_lat")
         val posLong = posLongV ?: throw  OFPParsingException(node?.name, "pos_long")
         val viaAirway = viaAirwayV ?: throw OFPParsingException(node?.name, "via_airway")
-        return SimbriefFix(ident, name, type, posLat, posLong, viaAirway)
+        return SimbriefFix(ident, name, OFPWayPointType.valueOf(type.uppercase()), posLat, posLong, viaAirway)
     }
 
     override fun write(node: OutputNode?, value: SimbriefFix?) {

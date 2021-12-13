@@ -1,5 +1,7 @@
 package pl.kossa.myflightsserver.retrofit.models
 
+import pl.kossa.myflightsserver.data.models.ofp.GeneralParams
+
 data class SimbriefOFP(
     val params: SimbriefParams,
     val general: SimbriefGeneral,
@@ -32,4 +34,8 @@ data class SimbriefGeneral(
     val icaoAirLine: String,
     val route: String
     //TODO
-)
+) {
+    fun toOFPGeneral(generalId: String): GeneralParams {
+        return GeneralParams(generalId, icaoAirLine, route)
+    }
+}

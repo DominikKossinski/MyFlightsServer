@@ -29,14 +29,14 @@ data class FuelRequest(
     val enrouteBurn: Int,
     val contingency: Int,
     val alternateBurn: Int,
-    val reserve: String,
+    val reserve: Int,
     val minTakeoff: Int,
     val planRamp: Int,
     val planLanding: Int,
     val avgFuelFlow: Int,
     val maxTanks: Int
 ) {
-    fun toFuel(id: String): OFPFuel {
+    fun toOFPFuel(id: String): OFPFuel {
         return OFPFuel(
             id,
             taxi,

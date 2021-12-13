@@ -20,7 +20,7 @@ enum class OFPWayPointType {
     WPT,
 
     @JsonProperty("ltlg")
-    LTGT,
+    LTLG,
 
     @JsonProperty("apt")
     APT
@@ -54,7 +54,7 @@ data class OFPLtgtWayPoint(
     override val posLat: Float,
     override val posLong: Float
 ) : OFPWayPoint() {
-    override val type: OFPWayPointType = OFPWayPointType.LTGT
+    override val type: OFPWayPointType = OFPWayPointType.LTLG
 }
 
 @Document(collection = "ofp_apt_way_point")

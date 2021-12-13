@@ -17,4 +17,6 @@ class OFPsService {
     suspend fun getOFPById(userId: String, ofpId: String) = repository.findByUserIdAndOfpId(userId, ofpId)
         ?: throw NotFoundException("OFP with id '$ofpId' not found.")
 
+    suspend fun getOFPSByUserId(userId: String) = repository.findAllByUserId(userId)
+
 }

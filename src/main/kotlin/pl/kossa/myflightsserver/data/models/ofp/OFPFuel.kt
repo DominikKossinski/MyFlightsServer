@@ -11,7 +11,7 @@ data class OFPFuel(
     val enrouteBurn: Int,
     val contingency: Int,
     val alternateBurn: Int,
-    val reserve: String,
+    val reserve: Int,
     val minTakeoff: Int,
     val planRamp: Int,
     val planLanding: Int,

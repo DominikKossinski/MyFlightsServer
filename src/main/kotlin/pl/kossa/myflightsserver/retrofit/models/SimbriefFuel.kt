@@ -1,5 +1,7 @@
 package pl.kossa.myflightsserver.retrofit.models
 
+import pl.kossa.myflightsserver.data.models.ofp.OFPFuel
+
 data class SimbriefFuel(
     val taxi: Int,
     val enrouteBurn: Int,
@@ -11,4 +13,20 @@ data class SimbriefFuel(
     val planLanding: Int,
     val avgFuelFlow: Int,
     val maxTanks: Int
-)
+) {
+    fun toOFPFuel(fuelId: String): OFPFuel {
+        return OFPFuel(
+            fuelId,
+            taxi,
+            enrouteBurn,
+            contingency,
+            alternateBurn,
+            reserve,
+            minTakeoff,
+            planRamp,
+            planLanding,
+            avgFuelFlow,
+            maxTanks
+        )
+    }
+}
