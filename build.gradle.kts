@@ -20,22 +20,22 @@ dependencies {
     implementation("com.google.firebase:firebase-admin:8.1.0")
 
     //Spring
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.5.5")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.6.1")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.6.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.1")
 
     //Validation
     implementation("javax.validation:validation-api:2.0.1.Final")
 
     //Mongo
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.6.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.6")
 
     //Swagger
-    implementation("org.springdoc:springdoc-openapi-ui:1.5.11")
-    implementation("org.springdoc:springdoc-openapi-data-rest:1.5.11")
-    implementation("org.springdoc:springdoc-openapi-security:1.5.11")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.11")
+    implementation("org.springdoc:springdoc-openapi-ui:1.5.12")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.5.12")
+    implementation("org.springdoc:springdoc-openapi-security:1.5.12")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.12")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
 
@@ -46,8 +46,17 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2-native-mt")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.5.2-native-mt")
 
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-simplexml:2.9.0") {
+        exclude("xpp3", "xpp3")
+        exclude("stax", "stax-api")
+        exclude("stax", "stax")
+    }
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.5") {
+
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.1") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
