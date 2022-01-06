@@ -36,13 +36,18 @@ data class Flight(
     @NotNull
     val userId: String,
 
+    @DBRef
     val airplane: Airplane,
 
+    @DBRef
     val departureAirport: Airport,
 
+    @DBRef
     val departureRunway: Runway,
 
+    @DBRef
     val arrivalAirport: Airport,
 
+    @DBRef
     val arrivalRunway: Runway
 )
