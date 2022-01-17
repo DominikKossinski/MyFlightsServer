@@ -1,6 +1,6 @@
 # MyFlightsServer
 
-[![Build Status](https://travis-ci.com/DominikKossinski/MyFlightsServer.svg?token=BD8WsprFssUNh6SkrEvC&branch=master)](https://travis-ci.com/DominikKossinski/MyFlightsServer)
+![AutoBuildWorkflow](https://github.com/DominikKossinski/MyFlightsServer/actions/workflows/auto-build.yml/badge.svg?branch=dev)
 
 Server for Android application, that allows saving airplanes and airports. Then it is possible to store information
 about flights between two airports using selected
@@ -36,3 +36,7 @@ Project uses Gradle, command to run server:
 ```
     ./gradlew bootRun
 ```
+
+## CI
+
+Repository uses Github actions to run automaticaly tests on branch push.
