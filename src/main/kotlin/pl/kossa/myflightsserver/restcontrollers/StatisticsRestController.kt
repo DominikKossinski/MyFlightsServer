@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pl.kossa.myflightsserver.architecture.BaseRestController
-import pl.kossa.myflightsserver.data.responses.StatisticsResponse
+import pl.kossa.myflightsserver.data.responses.statistics.StatisticsResponse
+import pl.kossa.myflightsserver.data.responses.statistics.TopNElement
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
 import pl.kossa.myflightsserver.extensions.getMostFrequentKey
 import pl.kossa.myflightsserver.extensions.getOccurrencesCount
+import pl.kossa.myflightsserver.extensions.getTopNValues
 import pl.kossa.myflightsserver.extensions.roundTo
 import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
@@ -62,20 +64,54 @@ class StatisticsRestController : BaseRestController() {
             ((it.arrivalDate.time - it.departureDate.time).toDouble() / (60f * 60f * 1_000f).toDouble()).roundTo(2)
         }.sum()
 
-        val favoriteAirplaneId = flights.map { it.airplane.airplaneId }.getOccurrencesCount().getMostFrequentKey()
+        val airplanesOccurrences = flights.map { it.airplane.airplaneId }.getOccurrencesCount()
+        val favoriteAirplaneId = airplanesOccurrences.getMostFrequentKey()
         val favoriteAirplane =
             favoriteAirplaneId?.let { airplanesService.getAirplaneById(user.uid, favoriteAirplaneId) }
+        val top5AirplanesIds = airplanesOccurrences.getTopNValues(5)
+        val top5Airplanes = top5AirplanesIds.map {
+            TopNElement(
+                airplanesService.getAirplaneById(user.uid, it.first),
+                it.second
+            )
+        }
 
-        val favoriteDepartureAirportId =
-            flights.map { it.departureAirport.airportId }.getOccurrencesCount().getMostFrequentKey()
+        val departureOccurrences =
+            flights.map { it.departureAirport.airportId }.getOccurrencesCount()
+        val favoriteDepartureAirportId = departureOccurrences.getMostFrequentKey()
         val favoriteDepartureAirport =
             favoriteDepartureAirportId?.let { airportsService.getAirportById(user.uid, favoriteDepartureAirportId) }
+        val top5DepartureAirportsIds = departureOccurrences.getTopNValues(5)
+        val top5Departures = top5DepartureAirportsIds.map {
+            TopNElement(
+                airportsService.getAirportById(user.uid, it.first),
+                it.second
+            )
+        }
 
 
-        val favoriteArrivalAirportId =
-            flights.map { it.arrivalAirport.airportId }.getOccurrencesCount().getMostFrequentKey()
+        val arrivalOccurrences =
+            flights.map { it.arrivalAirport.airportId }.getOccurrencesCount()
+        val favoriteArrivalAirportId = arrivalOccurrences.getMostFrequentKey()
         val favoriteArrivalAirport =
             favoriteArrivalAirportId?.let { airportsService.getAirportById(user.uid, favoriteArrivalAirportId) }
-        return StatisticsResponse(flightHours, favoriteAirplane, favoriteDepartureAirport, favoriteArrivalAirport)
+        val top5ArrivalAirportsIds = arrivalOccurrences.getTopNValues(5)
+        val top5Arrivals = top5ArrivalAirportsIds.map {
+            TopNElement(
+                airportsService.getAirportById(user.uid, it.first),
+                it.second
+            )
+        }
+
+
+        return StatisticsResponse(
+            flightHours,
+            favoriteAirplane,
+            top5Airplanes,
+            favoriteDepartureAirport,
+            top5Departures,
+            favoriteArrivalAirport,
+            top5Arrivals
+        )
     }
 }
