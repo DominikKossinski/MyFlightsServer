@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException
 import pl.kossa.myflightsserver.config.ApplicationConfig
 import pl.kossa.myflightsserver.data.Credentials
 import pl.kossa.myflightsserver.data.User
+import pl.kossa.myflightsserver.data.models.ProviderType
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -49,11 +50,15 @@ class SecurityFilter : OncePerRequestFilter() {
         if (token != null) {
             val decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
             decodedToken?.let {
-                val user = User(it.uid, it.email, it.isEmailVerified)
+                val fireUser = FirebaseAuth.getInstance().getUser(it.uid)
+                val providerId = fireUser.providerData[0].providerId
+                val providerType = ProviderType.getProviderType(providerId)
+                val user = User(it.uid, it.email, it.isEmailVerified, providerType)
                 logger.info("DecodedToken: $user")
                 val authentication = UsernamePasswordAuthenticationToken(user, Credentials(decodedToken, token))
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authentication
+
             }
         }
     }
