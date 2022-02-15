@@ -56,7 +56,7 @@ class UsersRestControllerTests {
     @Order(2)
     fun putUser() {
         runBlockingTest {
-            usersRestController.putUser(UserRequest("NewNick", null))
+            usersRestController.putUser(UserRequest("NewNick", null, true))
             val user = usersRestController.getUser()
             assert(user.isEmailVerified)
             assert(user.email == "test@test.pl")

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import pl.kossa.myflightsserver.config.security.SecurityService
 import pl.kossa.myflightsserver.data.User
+import pl.kossa.myflightsserver.data.models.ProviderType
 
 @Profile("test")
 @Configuration
@@ -26,7 +27,7 @@ class FirebaseTestConfig {
     @Bean
     fun securityService(): SecurityService {
         val mock = Mockito.mock(SecurityService::class.java)
-        Mockito.`when`(mock.getUser()).thenReturn(User("1", "test@test.pl", true))
+        Mockito.`when`(mock.getUser()).thenReturn(User("1", "test@test.pl", true, ProviderType.PASSWORD))
         return mock
     }
 }
