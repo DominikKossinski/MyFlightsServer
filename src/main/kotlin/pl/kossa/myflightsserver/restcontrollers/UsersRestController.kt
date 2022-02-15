@@ -1,5 +1,6 @@
 package pl.kossa.myflightsserver.restcontrollers
 
+import com.google.firebase.auth.FirebaseAuth
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -87,9 +88,19 @@ class UsersRestController : BaseRestController() {
             deleteImage(user.avatar)
         }
         val image = userRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
-        val updatedUser = User(user.uid, userRequest.nick, user.email, image, dbUser.fcmToken)
+        val updatedUser =
+            User(
+                user.uid,
+                userRequest.nick,
+                user.email,
+                image,
+                dbUser.fcmToken,
+                userRequest.regulationsAccepted,
+                user.providerType
+            )
         usersService.saveUser(updatedUser)
     }
+
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiResponses(
@@ -123,6 +134,7 @@ class UsersRestController : BaseRestController() {
 
         user.avatar?.let { deleteImage(it) }
         usersService.deleteById(user.uid)
+        FirebaseAuth.getInstance().deleteUser(user.uid)
     }
 
     @PutMapping("fcm", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])

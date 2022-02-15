@@ -16,5 +16,23 @@ data class User(
     @DBRef
     val avatar: Image?,
 
-    val fcmToken: String?
+    val fcmToken: String?,
+
+    val regulationsAccepted: Boolean,
+
+    val providerType: ProviderType
 )
+
+enum class ProviderType {
+    PASSWORD,
+    GOOGLE;
+
+    companion object {
+        fun getProviderType(providerId: String): ProviderType = when (providerId) {
+            "password" -> PASSWORD
+            "google.com" -> GOOGLE
+            else -> throw Exception("Unknown provider")
+        }
+
+    }
+}

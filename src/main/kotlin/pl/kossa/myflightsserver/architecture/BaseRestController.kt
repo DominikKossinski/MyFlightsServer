@@ -37,10 +37,29 @@ abstract class BaseRestController {
             val oldUser = usersService.getUserById(user.uid)
             val nick = oldUser?.nick ?: ""
             val avatar = oldUser?.avatar
-            usersService.saveUser(User(user.uid, nick, user.email, avatar, oldUser?.fcmToken))
-            return UserDetails(user.uid, user.email, user.isEmailVerified, null, null)
+            val regulationsAccepted = oldUser?.regulationsAccepted ?: false
+            usersService.saveUser(
+                User(
+                    user.uid,
+                    nick,
+                    user.email,
+                    avatar,
+                    oldUser?.fcmToken,
+                    regulationsAccepted,
+                    user.providerType
+                )
+            )
+            return UserDetails(user.uid, user.email, user.isEmailVerified, null, null, false, user.providerType)
         }
-        return UserDetails(user.uid, user.email, user.isEmailVerified, dbUser.nick, dbUser.avatar)
+        return UserDetails(
+            user.uid,
+            user.email,
+            user.isEmailVerified,
+            dbUser.nick,
+            dbUser.avatar,
+            dbUser.regulationsAccepted,
+            user.providerType
+        )
     }
 
 

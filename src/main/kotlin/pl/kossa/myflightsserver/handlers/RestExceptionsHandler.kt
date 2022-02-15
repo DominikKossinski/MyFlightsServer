@@ -1,5 +1,6 @@
 package pl.kossa.myflightsserver.handlers
 
+import com.google.firebase.auth.FirebaseAuthException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -69,5 +70,12 @@ class RestExceptionsHandler {
                 override val message = methodArgumentNotValidException.message
                 override val description = methodArgumentNotValidException.message
             })
+    }
+
+    @ExceptionHandler(FirebaseAuthException::class)
+    fun handleFirebaseAuthException(
+        firebaseAuthException: FirebaseAuthException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(UnauthorizedError())
     }
 }

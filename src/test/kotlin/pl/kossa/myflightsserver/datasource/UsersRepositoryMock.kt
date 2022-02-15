@@ -4,12 +4,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
+import pl.kossa.myflightsserver.data.models.ProviderType
 import pl.kossa.myflightsserver.data.models.User
 import pl.kossa.myflightsserver.repositories.UsersRepository
 
 class UsersRepositoryMock : UsersRepository {
 
-    private val users = arrayListOf(User("1", "Test", "test@test.pl", null, ""))
+    private val users = arrayListOf(User("1", "Test", "test@test.pl", null, "", true, ProviderType.PASSWORD))
 
     override suspend fun findByEmail(email: String): User? = users.find { it.email == email }
 
