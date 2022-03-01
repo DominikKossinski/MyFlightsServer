@@ -20,22 +20,22 @@ dependencies {
     implementation("com.google.firebase:firebase-admin:8.1.0")
 
     //Spring
-    implementation("org.springframework.boot:spring-boot-starter-web:2.6.2")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.6.2")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.6.3")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.6.3")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.3")
 
     //Validation
     implementation("javax.validation:validation-api:2.0.1.Final")
 
     //Mongo
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.6.2")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.6.3")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.6.3")
 
     //Swagger
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.3")
-    implementation("org.springdoc:springdoc-openapi-data-rest:1.6.3")
-    implementation("org.springdoc:springdoc-openapi-security:1.6.3")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.3")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.6.5")
+    implementation("org.springdoc:springdoc-openapi-security:1.6.5")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.5")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 
@@ -47,7 +47,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.0-native-mt")
 
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.2") {
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.3") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
