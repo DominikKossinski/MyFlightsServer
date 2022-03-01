@@ -32,10 +32,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.6.3")
 
     //Swagger
-    implementation("org.springdoc:spring-doc-openapi-ui:1.6.3")
-    implementation("org.springdoc:spring-doc-openapi-data-rest:1.6.3")
-    implementation("org.springdoc:spring-doc-openapi-security:1.6.3")
-    implementation("org.springdoc:spring-doc-openapi-kotlin:1.6.3")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.6.5")
+    implementation("org.springdoc:springdoc-openapi-security:1.6.5")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.5")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 
