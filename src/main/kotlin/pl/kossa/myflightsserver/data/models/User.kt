@@ -16,7 +16,7 @@ data class User(
     @DBRef
     val avatar: Image?,
 
-    val fcmToken: String?,
+    val fcmTokens: ArrayList<String>,
 
     val regulationsAccepted: Boolean,
 
