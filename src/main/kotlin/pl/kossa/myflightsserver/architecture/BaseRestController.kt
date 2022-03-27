@@ -44,7 +44,7 @@ abstract class BaseRestController {
                     nick,
                     user.email,
                     avatar,
-                    oldUser?.fcmToken,
+                    oldUser?.fcmTokens ?: arrayListOf(),
                     regulationsAccepted,
                     user.providerType
                 )

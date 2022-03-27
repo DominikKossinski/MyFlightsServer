@@ -94,7 +94,7 @@ class UsersRestController : BaseRestController() {
                 userRequest.nick,
                 user.email,
                 image,
-                dbUser.fcmToken,
+                dbUser.fcmTokens,
                 userRequest.regulationsAccepted,
                 user.providerType
             )
@@ -157,7 +157,10 @@ class UsersRestController : BaseRestController() {
     suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest) {
         val user = getUserDetails()
         val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
-        val newUser = dbUser.copy(fcmToken = fcmTokenRequest.fcmToken)
+        val newUser = dbUser.copy()
+        fcmTokenRequest.fcmToken?.let {
+            newUser.fcmTokens.add(it)
+        }
         usersService.saveUser(newUser)
     }
 
