@@ -49,5 +49,7 @@ data class Flight(
     val arrivalAirport: Airport,
 
     @DBRef
-    val arrivalRunway: Runway
+    val arrivalRunway: Runway,
+
+    val isPlanned: Boolean
 )

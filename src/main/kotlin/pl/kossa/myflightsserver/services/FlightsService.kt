@@ -14,6 +14,9 @@ class FlightsService {
 
     suspend fun getFlightsByUserId(uid: String) = repository.findAllByUserId(uid)
 
+    suspend fun getFlightsByUserIdAndPlanned(uid: String, isPlanned: Boolean) =
+        repository.findAllByUserIdAndIsPlanned(uid, isPlanned)
+
     suspend fun getFlightById(uid: String, flightId: String) = repository.findFlightByUserIdAndFlightId(uid, flightId)
         ?: throw NotFoundException("Flight with id '$flightId' not found.")
 

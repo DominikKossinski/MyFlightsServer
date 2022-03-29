@@ -13,6 +13,9 @@ class FlightsRepositoryMock : FlightsRepository {
 
     override suspend fun findAllByUserId(userId: String): List<Flight> = flights.filter { it.userId == userId }
 
+    override suspend fun findAllByUserIdAndIsPlanned(userId: String, isPlanned: Boolean): List<Flight> =
+        flights.filter { it.userId == userId && it.isPlanned == isPlanned }
+
     override suspend fun findFlightByUserIdAndFlightId(userId: String, flightId: String): Flight? =
         flights.find { it.userId == userId && it.flightId == flightId }
 

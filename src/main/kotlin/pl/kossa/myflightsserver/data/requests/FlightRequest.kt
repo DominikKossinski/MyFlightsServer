@@ -27,5 +27,7 @@ data class FlightRequest(
 
     val arrivalAirportId: String,
 
-    val arrivalRunwayId: String
+    val arrivalRunwayId: String,
+
+    val isPlanned: Boolean
 )
