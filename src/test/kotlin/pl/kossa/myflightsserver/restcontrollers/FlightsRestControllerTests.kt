@@ -2,9 +2,9 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -65,14 +65,15 @@ class FlightsRestControllerTests {
             "Note",
             1000,
             null,
-            Date(),
-            Date(),
+            Date().apply { time -= 10 * 60 * 1_000 },
+            Date().apply { time -= 5 * 60 * 1_000 },
             "1",
             airplane,
             departureAirport,
             departureRunway,
             arrivalAirport,
-            arrivalRunway
+            arrivalRunway,
+            false
         )
     private val flightToPut =
         Flight(
@@ -80,17 +81,18 @@ class FlightsRestControllerTests {
             "Note5",
             1500,
             null,
-            Date(),
-            Date(),
+            Date().apply { time -= 10 * 60 * 1_000 },
+            Date().apply { time -= 5 * 60 * 1_000 },
             "1",
             airplane,
             arrivalAirport,
             arrivalRunway,
             departureAirport,
-            departureRunway
+            departureRunway,
+            false
         )
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = StandardTestDispatcher()
 
     @BeforeAll
     fun setup() {
@@ -100,161 +102,144 @@ class FlightsRestControllerTests {
     @AfterAll
     fun clear() {
         Dispatchers.resetMain()
-        testCoroutineDispatcher.cleanupTestCoroutines()
     }
 
     @Test
     @Order(1)
-    fun addData() {
-        runBlockingTest {
-            airplaneId = airplanesRestController.postAirplane(
-                AirplaneRequest(
-                    airplane.name,
-                    airplane.maxSpeed,
-                    airplane.weight,
-                    airplane.image?.imageId
-                )
-            ).entityId
+    fun addData() = runTest {
+        airplaneId = airplanesRestController.postAirplane(
+            AirplaneRequest(
+                airplane.name,
+                airplane.maxSpeed,
+                airplane.weight,
+                airplane.image?.imageId
+            )
+        ).entityId
 
-            departureAirportId = airportsRestController.postAirport(
-                AirportRequest(
-                    departureAirport.name,
-                    departureAirport.city,
-                    departureAirport.icaoCode,
-                    departureAirport.towerFrequency,
-                    departureAirport.groundFrequency,
-                    departureAirport.image?.imageId
-                )
-            ).entityId
-            arrivalAirportId = airportsRestController.postAirport(
-                AirportRequest(
-                    arrivalAirport.name,
-                    arrivalAirport.city,
-                    arrivalAirport.icaoCode,
-                    arrivalAirport.towerFrequency,
-                    arrivalAirport.groundFrequency,
-                    arrivalAirport.image?.imageId
-                )
-            ).entityId
+        departureAirportId = airportsRestController.postAirport(
+            AirportRequest(
+                departureAirport.name,
+                departureAirport.city,
+                departureAirport.icaoCode,
+                departureAirport.towerFrequency,
+                departureAirport.groundFrequency,
+                departureAirport.image?.imageId
+            )
+        ).entityId
+        arrivalAirportId = airportsRestController.postAirport(
+            AirportRequest(
+                arrivalAirport.name,
+                arrivalAirport.city,
+                arrivalAirport.icaoCode,
+                arrivalAirport.towerFrequency,
+                arrivalAirport.groundFrequency,
+                arrivalAirport.image?.imageId
+            )
+        ).entityId
 
-            departureRunwayId = runwaysRestController.postRunway(
-                departureAirportId,
-                RunwayRequest(
-                    departureRunway.name,
-                    departureRunway.length,
-                    departureRunway.heading,
-                    departureRunway.ilsFrequency,
-                    departureRunway.image?.imageId
-                )
-            ).entityId
-            arrivalRunwayId = runwaysRestController.postRunway(
-                arrivalAirportId,
-                RunwayRequest(
-                    arrivalRunway.name,
-                    arrivalRunway.length,
-                    arrivalRunway.heading,
-                    arrivalRunway.ilsFrequency,
-                    arrivalRunway.image?.imageId
-                )
-            ).entityId
-        }
+        departureRunwayId = runwaysRestController.postRunway(
+            departureAirportId,
+            RunwayRequest(
+                departureRunway.name,
+                departureRunway.length,
+                departureRunway.heading,
+                departureRunway.ilsFrequency,
+                departureRunway.image?.imageId
+            )
+        ).entityId
+        arrivalRunwayId = runwaysRestController.postRunway(
+            arrivalAirportId,
+            RunwayRequest(
+                arrivalRunway.name,
+                arrivalRunway.length,
+                arrivalRunway.heading,
+                arrivalRunway.ilsFrequency,
+                arrivalRunway.image?.imageId
+            )
+        ).entityId
     }
 
     @Test
     @Order(2)
-    fun noFlightsOnStart() {
-        runBlockingTest {
-            val flights = flightsRestController.getUserFlights()
-            assert(flights.isEmpty())
-        }
+    fun noFlightsOnStart() = runTest {
+        val flights = flightsRestController.getUserFlights()
+        assert(flights.isEmpty())
     }
 
     @Test
     @Order(3)
-    fun flightNotFound() {
-        runBlockingTest {
-            assertThrows<NotFoundException> {
-                flightsRestController.getFlightById("1")
-            }
+    fun flightNotFound() = runTest {
+        assertThrows<NotFoundException> {
+            flightsRestController.getFlightById("1")
         }
     }
 
     @Test
     @Order(4)
-    fun postFlight() {
-        runBlockingTest {
-            flightId = flightsRestController.postFlight(
-                FlightRequest(
-                    flightToPost.note, flightToPost.distance, flightToPost.image?.imageId,
-                    flightToPost.departureDate, flightToPost.arrivalDate, airplaneId,
-                    departureAirportId, departureRunwayId,
-                    arrivalAirportId, arrivalRunwayId
-                )
-            ).entityId
-        }
+    fun postFlight() = runTest {
+
+        flightId = flightsRestController.postFlight(
+            FlightRequest(
+                flightToPost.note, flightToPost.distance, flightToPost.image?.imageId,
+                flightToPost.departureDate, flightToPost.arrivalDate, airplaneId,
+                departureAirportId, departureRunwayId,
+                arrivalAirportId, arrivalRunwayId, false
+            )
+        ).entityId
     }
 
     @Test
     @Order(5)
-    fun getFlight() {
-        runBlockingTest {
-            val flight = flightsRestController.getFlightById(flightId)
-            checkFlights(flight, flightToPost, true)
-        }
+    fun getFlight() = runTest {
+        val flight = flightsRestController.getFlightById(flightId)
+        checkFlights(flight, flightToPost, true)
     }
 
     @Test
     @Order(6)
-    fun getFlightsByUser() {
-        runBlockingTest {
-            val flights = flightsRestController.getUserFlights()
-            checkFlights(flights[0], flightToPost, true)
-        }
+    fun getFlightsByUser() = runTest {
+        val flights = flightsRestController.getUserFlights()
+        checkFlights(flights[0], flightToPost, true)
     }
 
     @Test
     @Order(7)
-    fun putFlight() {
-        runBlockingTest {
-            flightsRestController.putFLight(
-                flightId,
-                FlightRequest(
-                    flightToPut.note, flightToPut.distance, flightToPut.image?.imageId,
-                    flightToPut.departureDate, flightToPut.arrivalDate, airplaneId,
-                    arrivalAirportId, arrivalRunwayId,
-                    departureAirportId, departureRunwayId
-                )
+    fun putFlight() = runTest {
+        flightsRestController.putFlight(
+            flightId,
+            FlightRequest(
+                flightToPut.note, flightToPut.distance, flightToPut.image?.imageId,
+                flightToPut.departureDate, flightToPut.arrivalDate, airplaneId,
+                arrivalAirportId, arrivalRunwayId,
+                departureAirportId, departureRunwayId, false
             )
-            val flight = flightsRestController.getFlightById(flightId)
-            checkFlights(flight, flightToPut, false)
-        }
+        )
+        val flight = flightsRestController.getFlightById(flightId)
+        checkFlights(flight, flightToPut, false)
     }
+
 
     @Test
     @Order(8)
-    fun deleteFlight() {
-        runBlockingTest {
+    fun deleteFlight() = runTest {
+        flightsRestController.deleteFlight(flightId)
+        assertThrows<NotFoundException> {
             flightsRestController.deleteFlight(flightId)
-            assertThrows<NotFoundException> {
-                flightsRestController.deleteFlight(flightId)
-            }
         }
     }
 
     @Test
     @Order(9)
-    fun deleteData() {
-        runBlockingTest {
+    fun deleteData() = runTest {
 
-            airplanesRestController.deleteAirplane(airplaneId)
+        airplanesRestController.deleteAirplane(airplaneId)
 
-            runwaysRestController.deleteRunway(departureAirportId, departureRunwayId)
-            runwaysRestController.deleteRunway(arrivalAirportId, arrivalRunwayId)
+        runwaysRestController.deleteRunway(departureAirportId, departureRunwayId)
+        runwaysRestController.deleteRunway(arrivalAirportId, arrivalRunwayId)
 
-            airportsRestController.deleteAirport(departureAirportId)
-            airportsRestController.deleteAirport(arrivalAirportId)
+        airportsRestController.deleteAirport(departureAirportId)
+        airportsRestController.deleteAirport(arrivalAirportId)
 
-        }
     }
 
     private fun checkFlights(flight: Flight, checkFlight: Flight, isPost: Boolean) {

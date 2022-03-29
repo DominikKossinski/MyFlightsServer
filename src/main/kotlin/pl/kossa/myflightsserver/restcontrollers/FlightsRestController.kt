@@ -16,8 +16,10 @@ import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.errors.ForbiddenError
 import pl.kossa.myflightsserver.errors.NotFoundError
 import pl.kossa.myflightsserver.errors.UnauthorizedError
-import pl.kossa.myflightsserver.exceptions.ForbiddenException
+import pl.kossa.myflightsserver.exceptions.ArrivalTimeException
+import pl.kossa.myflightsserver.exceptions.FlightTimeException
 import pl.kossa.myflightsserver.exceptions.NotFoundException
+import pl.kossa.myflightsserver.exceptions.PlannedFlightTimeException
 import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
@@ -55,7 +57,28 @@ class FlightsRestController : BaseRestController() {
     )
     suspend fun getUserFlights(): List<Flight> {
         val user = getUserDetails()
-        return flightsService.getFlightsByUserId(user.uid)
+        return flightsService.getFlightsByUserIdAndPlanned(user.uid, false)
+    }
+
+    @GetMapping("/planned", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+            )
+        ]
+    )
+    suspend fun getUserPlannedFlights(): List<Flight> {
+        val user = getUserDetails()
+        return flightsService.getFlightsByUserIdAndPlanned(user.uid, true)
     }
 
     @GetMapping("/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -139,10 +162,9 @@ class FlightsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putFLight(@PathVariable("flightId") flightId: String, @RequestBody flightRequest: FlightRequest) {
+    suspend fun putFlight(@PathVariable("flightId") flightId: String, @RequestBody flightRequest: FlightRequest) {
         val user = getUserDetails()
         val flight = flightsService.getFlightById(user.uid, flightId)
-        if (flight.userId != user.uid) throw ForbiddenException()
         if (flight.image != null && flightRequest.imageId == null) {
             deleteImage(flight.image)
         }
@@ -196,7 +218,19 @@ class FlightsRestController : BaseRestController() {
         val arrivalAirport = airportsService.getAirportById(user.uid, flightRequest.arrivalAirportId)
         val arrivalRunway = arrivalAirport.runways.find { it.runwayId == flightRequest.arrivalRunwayId }
             ?: throw NotFoundException("Runway with id '${flightRequest.arrivalRunwayId}' not found.")
-
+        if (flightRequest.arrivalDate < flightRequest.departureDate) {
+            throw ArrivalTimeException()
+        }
+        if (flightRequest.isPlanned &&
+            (flightRequest.departureDate.before(Date()) || flightRequest.arrivalDate.before(Date()))
+        ) {
+            throw PlannedFlightTimeException()
+        }
+        if (!flightRequest.isPlanned &&
+            (flightRequest.arrivalDate.after(Date()) || flightRequest.departureDate.after(Date()))
+        ) {
+            throw FlightTimeException()
+        }
         return Flight(
             flightId,
             flightRequest.note,
@@ -209,7 +243,8 @@ class FlightsRestController : BaseRestController() {
             departureAirport,
             departureRunway,
             arrivalAirport,
-            arrivalRunway
+            arrivalRunway,
+            flightRequest.isPlanned
         )
     }
 }

@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import pl.kossa.myflightsserver.config.ApplicationConfig
 import pl.kossa.myflightsserver.errors.*
-import pl.kossa.myflightsserver.exceptions.ExistingFlightsException
-import pl.kossa.myflightsserver.exceptions.ForbiddenException
-import pl.kossa.myflightsserver.exceptions.NotFoundException
-import pl.kossa.myflightsserver.exceptions.UnauthorizedException
+import pl.kossa.myflightsserver.exceptions.*
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -77,5 +74,26 @@ class RestExceptionsHandler {
         firebaseAuthException: FirebaseAuthException
     ): ResponseEntity<ApiError> {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(UnauthorizedError())
+    }
+
+    @ExceptionHandler(FlightTimeException::class)
+    fun handleFlightTimeException(
+        flightTimeException: FlightTimeException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(FlightTimeError())
+    }
+
+    @ExceptionHandler(PlannedFlightTimeException::class)
+    fun handlePlannedFlightTimeException(
+        plannedFlightTimeException: PlannedFlightTimeException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(PlannedFlightTimeError())
+    }
+
+    @ExceptionHandler(ArrivalTimeException::class)
+    fun handleArrivalTimeException(
+        arrivalTimeException: ArrivalTimeException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(ArrivalTimeError())
     }
 }
