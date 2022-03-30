@@ -3,28 +3,58 @@ package pl.kossa.myflightsserver.restcontrollers
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
+import pl.kossa.myflightsserver.data.responses.sharedflights.SharedFlightResponse
+import pl.kossa.myflightsserver.data.responses.sharedflights.SharedUserData
+import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
 import java.util.*
 
-@RequestMapping("/api/share")
+@RequestMapping("/api/shared-flights")
 class SharedFlightsRestController : BaseRestController() {
-
-    @Autowired
-    private lateinit var flightsService: FlightsService
 
     @Autowired
     private lateinit var service: SharedFlightsService
 
+    @Autowired
+    private lateinit var flightsService: FlightsService
 
-    @PostMapping("/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getSharedFlights(): List<SharedFlight> {
+        val user = getUserDetails()
+        return service.getSharedFlightsByUserId(user.uid)
+    }
+
+    @GetMapping("/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String): SharedFlightResponse {
+        val user = getUserDetails()
+        val sharedFlight =
+            service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
+                "Shared flight with id '$sharedFlightId' not found"
+            )
+        val sharedUser = sharedFlight.sharedUserId?.let { usersService.getUserById(it) }
+        val sharedUserData = sharedUser?.let {
+            SharedUserData(
+                it.userId,
+                it.email,
+                it.nick,
+                it.avatar
+            )
+        }
+        return SharedFlightResponse(
+            sharedFlightId,
+            sharedFlight.flight,
+            sharedFlight.ownerId,
+            sharedUserData
+        )
+    }
+
+    @PostMapping("/share/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun postSharedFlight(@PathVariable("flightId") flightId: String): CreatedResponse {
         val user = getUserDetails()
@@ -45,4 +75,34 @@ class SharedFlightsRestController : BaseRestController() {
         return CreatedResponse(savedSharedFlight.sharedFlightId)
     }
 
+    @PutMapping("/confirm/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    suspend fun postSharedFlightConfirmation(@PathVariable("sharedFlightId") sharedFlightId: String) {
+        val user = getUserDetails()
+        val sharedFlight =
+            service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
+                "Shared flight with id '$sharedFlightId' not found"
+            )
+        sharedFlight.sharedUserId ?: throw  Exception() // TODO no user
+        if (sharedFlight.isConfirmed) {
+            throw  Exception() // TODO already confirmed
+        }
+        service.save(sharedFlight.copy(isConfirmed = true))
+    }
+
+    @PutMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    suspend fun poshSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String) {
+        val user = getUserDetails()
+        val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
+            "Shared flight with id '$sharedFlightId' not found"
+        )
+        if (sharedFlight.isConfirmed) {
+            throw  Exception() // TODO already confirmed
+        }
+        sharedFlight.sharedUserId?.let {
+            throw Exception() // TODO already joined
+        }
+        service.save(sharedFlight.copy(sharedUserId = user.uid))
+    }
 }

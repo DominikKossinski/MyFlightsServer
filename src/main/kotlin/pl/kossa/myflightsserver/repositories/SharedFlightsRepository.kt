@@ -5,9 +5,15 @@ import pl.kossa.myflightsserver.data.models.SharedFlight
 
 interface SharedFlightsRepository : CoroutineCrudRepository<SharedFlight, String> {
 
-    suspend fun findByFlightIdAndUserIdAndIsConfirmed(
-        flightId: String,
+    suspend fun findByUserIdAndFlightIdAndIsConfirmed(
         userId: String,
+        flightId: String,
         isConfirmed: Boolean
     ): SharedFlight?
+
+    suspend fun findAllByUserId(userId: String): List<SharedFlight>
+
+    suspend fun findByUserIdAndSharedFlightId(userId: String, sharedFlightId: String): SharedFlight?
+
+    fun findBySharedFlightId(sharedFlightId: String): SharedFlight?
 }
