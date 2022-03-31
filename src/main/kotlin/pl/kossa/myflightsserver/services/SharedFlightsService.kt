@@ -23,4 +23,9 @@ class SharedFlightsService {
 
     suspend fun getSharedFlightByUserIdAndSharedFlightId(userId: String, sharedFlightId: String) =
         repository.findByUserIdAndSharedFlightId(userId, sharedFlightId)
+
+    suspend fun deleteSharedFlightById(sharedFlightId: String) = repository.deleteById(sharedFlightId)
+
+    suspend fun getSharedFlightBySharedUserIdAndSharedFlightId(userId: String, sharedFlightId: String) =
+        repository.findBySharedFlightBySharedUserIdAndSharedFlightId(userId, sharedFlightId)
 }

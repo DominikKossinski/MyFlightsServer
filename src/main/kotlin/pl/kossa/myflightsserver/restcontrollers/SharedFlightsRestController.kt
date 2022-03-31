@@ -111,8 +111,21 @@ class SharedFlightsRestController : BaseRestController() {
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
 
-    // TODO delete by shared user
-    // TODO delete by flightId
-    // TODO delete by sharedFlightId
+    @DeleteMapping("/{sharedFlightId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    suspend fun deleteSharedFlightById(@PathVariable("sharedFlightId") sharedFlightId: String) {
+        val user = getUserDetails()
+        service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId)
+            ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
+        service.deleteSharedFlightById(sharedFlightId)
+    }
 
+    @DeleteMapping("/resign/{sharedFlightId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    suspend fun resignFromSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String) {
+        val user = getUserDetails()
+        service.getSharedFlightBySharedUserIdAndSharedFlightId(user.uid, sharedFlightId)
+            ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
+        service.deleteSharedFlightById(sharedFlightId)
+    }
 }

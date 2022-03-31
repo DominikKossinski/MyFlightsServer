@@ -15,5 +15,7 @@ interface SharedFlightsRepository : CoroutineCrudRepository<SharedFlight, String
 
     suspend fun findByUserIdAndSharedFlightId(userId: String, sharedFlightId: String): SharedFlight?
 
-    fun findBySharedFlightId(sharedFlightId: String): SharedFlight?
+    suspend fun findBySharedFlightId(sharedFlightId: String): SharedFlight?
+
+    suspend fun findBySharedFlightBySharedUserIdAndSharedFlightId(userId: String, sharedFlightId: String): SharedFlight?
 }
