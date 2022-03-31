@@ -29,6 +29,12 @@ import java.util.*
 @RequestMapping("/api/flights")
 class FlightsRestController : BaseRestController() {
 
+    // TODO returning shared flights
+    // TODO returning pending shared flights
+    // TODO returning shared users data
+    // TODO returning owners data
+    // TODO deleting shared flights
+
     @Autowired
     lateinit var flightsService: FlightsService
 

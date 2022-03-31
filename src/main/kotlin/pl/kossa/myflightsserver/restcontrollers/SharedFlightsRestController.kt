@@ -87,6 +87,7 @@ class SharedFlightsRestController : BaseRestController() {
         if (sharedFlight.isConfirmed) {
             throw  Exception() // TODO already confirmed
         }
+        // TODO send notification to shared user
         service.save(sharedFlight.copy(isConfirmed = true))
     }
 
@@ -103,6 +104,12 @@ class SharedFlightsRestController : BaseRestController() {
         sharedFlight.sharedUserId?.let {
             throw Exception() // TODO already joined
         }
+        // TODO send notification to owner
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
+
+    // TODO delete by shared user
+    // TODO delete by flightId
+    // TODO delete by sharedFlightId
+
 }
