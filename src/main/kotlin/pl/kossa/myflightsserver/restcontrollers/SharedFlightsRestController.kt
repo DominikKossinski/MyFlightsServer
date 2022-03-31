@@ -9,7 +9,10 @@ import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedFlightResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedUserData
+import pl.kossa.myflightsserver.exceptions.AlreadyConfirmedException
+import pl.kossa.myflightsserver.exceptions.AlreadyJoinedException
 import pl.kossa.myflightsserver.exceptions.NotFoundException
+import pl.kossa.myflightsserver.exceptions.UserNotJoinedException
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
 import java.util.*
@@ -83,9 +86,9 @@ class SharedFlightsRestController : BaseRestController() {
             service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
             )
-        sharedFlight.sharedUserId ?: throw  Exception() // TODO no user
+        sharedFlight.sharedUserId ?: throw  UserNotJoinedException(sharedFlightId)
         if (sharedFlight.isConfirmed) {
-            throw  Exception() // TODO already confirmed
+            throw AlreadyConfirmedException(sharedFlightId)
         }
         // TODO send notification to shared user
         service.save(sharedFlight.copy(isConfirmed = true))
@@ -99,10 +102,10 @@ class SharedFlightsRestController : BaseRestController() {
             "Shared flight with id '$sharedFlightId' not found"
         )
         if (sharedFlight.isConfirmed) {
-            throw  Exception() // TODO already confirmed
+            throw  AlreadyConfirmedException(sharedFlightId)
         }
         sharedFlight.sharedUserId?.let {
-            throw Exception() // TODO already joined
+            throw AlreadyJoinedException(sharedFlightId)
         }
         // TODO send notification to owner
         service.save(sharedFlight.copy(sharedUserId = user.uid))

@@ -96,4 +96,28 @@ class RestExceptionsHandler {
     ): ResponseEntity<ApiError> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(ArrivalTimeError())
     }
+
+    @ExceptionHandler(AlreadyConfirmedException::class)
+    fun handleAlreadyConfirmedException(
+        alreadyConfirmedException: AlreadyConfirmedException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+            .body(AlreadyConfirmedError(alreadyConfirmedException.message ?: ""))
+    }
+
+    @ExceptionHandler(AlreadyJoinedException::class)
+    fun handleAlreadyJoinedException(
+        alreadyJoinedException: AlreadyJoinedException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+            .body(AlreadyJoinedError(alreadyJoinedException.message ?: ""))
+    }
+
+    @ExceptionHandler(UserNotJoinedException::class)
+    fun handleUserNotJoinedException(
+        userNotJoinedException: UserNotJoinedException
+    ): ResponseEntity<ApiError> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+            .body(UserNotJoinedError(userNotJoinedException.message ?: ""))
+    }
 }
