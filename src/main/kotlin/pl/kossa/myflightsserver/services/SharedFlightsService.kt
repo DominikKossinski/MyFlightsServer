@@ -12,20 +12,29 @@ class SharedFlightsService {
     private lateinit var repository: SharedFlightsRepository
 
     suspend fun getSharedFlightByFlightId(userId: String, flightId: String) =
-        repository.findByUserIdAndFlightIdAndIsConfirmed(userId, flightId, false)
+        repository.findByOwnerIdAndFlightIdAndIsConfirmed(userId, flightId, false)
 
     suspend fun save(sharedFlight: SharedFlight) = repository.save(sharedFlight)
 
-    suspend fun getSharedFlightsByUserId(userId: String) = repository.findAllByUserId(userId)
+    suspend fun getSharedFlightsByOwnerId(userId: String) = repository.findAllByOwnerId(userId)
 
     suspend fun getSharedFlightBySharedFlightId(sharedFlightId: String) =
         repository.findBySharedFlightId(sharedFlightId)
 
-    suspend fun getSharedFlightByUserIdAndSharedFlightId(userId: String, sharedFlightId: String) =
-        repository.findByUserIdAndSharedFlightId(userId, sharedFlightId)
+    suspend fun getSharedFlightByOwnerIdAndSharedFlightId(ownerId: String, sharedFlightId: String) =
+        repository.findByOwnerIdAndSharedFlightId(ownerId, sharedFlightId)
 
     suspend fun deleteSharedFlightById(sharedFlightId: String) = repository.deleteById(sharedFlightId)
 
     suspend fun getSharedFlightBySharedUserIdAndSharedFlightId(userId: String, sharedFlightId: String) =
-        repository.findBySharedFlightBySharedUserIdAndSharedFlightId(userId, sharedFlightId)
+        repository.findBySharedUserIdAndSharedFlightId(userId, sharedFlightId)
+
+    suspend fun getSharedFlightsByOwnerIdAndFlightId(ownerId: String, flightId: String) =
+        repository.findAllByOwnerIdAndFlightId(ownerId, flightId)
+
+    suspend fun getSharedFlightBySharedUserIdAndFlightId(sharedUserId: String, flightId: String): SharedFlight? =
+        repository.findBySharedUserIdAndFlightId(sharedUserId, flightId)
+
+    suspend fun getSharedFlightsBySharedUserId(sharedUserId: String) =
+        repository.findAllBySharedUserId(sharedUserId)
 }

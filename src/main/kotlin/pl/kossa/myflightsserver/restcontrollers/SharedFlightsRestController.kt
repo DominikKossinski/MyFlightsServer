@@ -17,6 +17,7 @@ import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
 import java.util.*
 
+@RestController
 @RequestMapping("/api/shared-flights")
 class SharedFlightsRestController : BaseRestController() {
 
@@ -30,14 +31,14 @@ class SharedFlightsRestController : BaseRestController() {
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getSharedFlights(): List<SharedFlight> {
         val user = getUserDetails()
-        return service.getSharedFlightsByUserId(user.uid)
+        return service.getSharedFlightsByOwnerId(user.uid)
     }
 
     @GetMapping("/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String): SharedFlightResponse {
         val user = getUserDetails()
         val sharedFlight =
-            service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
+            service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
             )
         val sharedUser = sharedFlight.sharedUserId?.let { usersService.getUserById(it) }
@@ -49,9 +50,11 @@ class SharedFlightsRestController : BaseRestController() {
                 it.avatar
             )
         }
+        val flight = flightsService.getFlightById(sharedFlight.ownerId, sharedFlight.flightId)
+            ?: throw NotFoundException("Flight with id '${sharedFlight.flightId}' not found.")
         return SharedFlightResponse(
             sharedFlightId,
-            sharedFlight.flight,
+            flight,
             sharedFlight.ownerId,
             sharedUserData
         )
@@ -61,14 +64,14 @@ class SharedFlightsRestController : BaseRestController() {
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun postSharedFlight(@PathVariable("flightId") flightId: String): CreatedResponse {
         val user = getUserDetails()
-        val flight = flightsService.getFlightById(user.uid, flightId)
+        flightsService.getFlightById(user.uid, flightId)
+            ?: throw NotFoundException("Flight with id '$flightId' not found.")
         val sharedFlight = service.getSharedFlightByFlightId(user.uid, flightId)
         sharedFlight?.let {
             return CreatedResponse(it.flightId)
         }
         val newSharedFlight = SharedFlight(
             UUID.randomUUID().toString(),
-            flight,
             flightId,
             user.uid,
             null,
@@ -83,7 +86,7 @@ class SharedFlightsRestController : BaseRestController() {
     suspend fun postSharedFlightConfirmation(@PathVariable("sharedFlightId") sharedFlightId: String) {
         val user = getUserDetails()
         val sharedFlight =
-            service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
+            service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
             )
         sharedFlight.sharedUserId ?: throw  UserNotJoinedException(sharedFlightId)
@@ -115,7 +118,7 @@ class SharedFlightsRestController : BaseRestController() {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun deleteSharedFlightById(@PathVariable("sharedFlightId") sharedFlightId: String) {
         val user = getUserDetails()
-        service.getSharedFlightByUserIdAndSharedFlightId(user.uid, sharedFlightId)
+        service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId)
             ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
         service.deleteSharedFlightById(sharedFlightId)
     }
