@@ -13,6 +13,7 @@ import pl.kossa.myflightsserver.exceptions.AlreadyConfirmedException
 import pl.kossa.myflightsserver.exceptions.AlreadyJoinedException
 import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.exceptions.UserNotJoinedException
+import pl.kossa.myflightsserver.services.FirebaseMessagingService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
 import java.util.*
@@ -26,6 +27,9 @@ class SharedFlightsRestController : BaseRestController() {
 
     @Autowired
     private lateinit var flightsService: FlightsService
+
+    @Autowired
+    private lateinit var firebaseMessagingService: FirebaseMessagingService
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -93,7 +97,7 @@ class SharedFlightsRestController : BaseRestController() {
         if (sharedFlight.isConfirmed) {
             throw AlreadyConfirmedException(sharedFlightId)
         }
-        // TODO send notification to shared user
+        firebaseMessagingService.sendSharedFlightConfirmationMessage(sharedFlight.sharedUserId)
         service.save(sharedFlight.copy(isConfirmed = true))
     }
 
