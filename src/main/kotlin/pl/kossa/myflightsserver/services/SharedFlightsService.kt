@@ -36,5 +36,11 @@ class SharedFlightsService {
         repository.findBySharedUserIdAndFlightId(sharedUserId, flightId)
 
     suspend fun getSharedFlightsBySharedUserId(sharedUserId: String) =
-        repository.findAllBySharedUserId(sharedUserId)
+        repository.findAllBySharedUserIdAndIsConfirmed(sharedUserId, true)
+
+    suspend fun getPendingSharedFlights(ownerId: String): List<SharedFlight> =
+        repository.findAllByOwnerIdAndIsConfirmed(ownerId, false)
+
+    suspend fun getSharedFlightsBySharedUserIdAndFlightId(userId: String, flightId: String) =
+        repository.getSharedFlightsBySharedUserIdAndFlightId(userId, flightId)
 }

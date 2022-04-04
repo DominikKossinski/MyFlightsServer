@@ -11,7 +11,7 @@ data class User(
 
     val nick: String,
 
-    val email: String?,
+    val email: String,
 
     @DBRef
     val avatar: Image?,

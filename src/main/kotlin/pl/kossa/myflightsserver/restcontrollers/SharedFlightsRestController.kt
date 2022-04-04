@@ -9,10 +9,7 @@ import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedFlightResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedUserData
-import pl.kossa.myflightsserver.exceptions.AlreadyConfirmedException
-import pl.kossa.myflightsserver.exceptions.AlreadyJoinedException
-import pl.kossa.myflightsserver.exceptions.NotFoundException
-import pl.kossa.myflightsserver.exceptions.UserNotJoinedException
+import pl.kossa.myflightsserver.exceptions.*
 import pl.kossa.myflightsserver.services.FirebaseMessagingService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
@@ -36,6 +33,32 @@ class SharedFlightsRestController : BaseRestController() {
     suspend fun getSharedFlights(): List<SharedFlight> {
         val user = getUserDetails()
         return service.getSharedFlightsByOwnerId(user.uid)
+    }
+
+    @GetMapping("/pending", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getPendingSharedFlights(): List<SharedFlightResponse> {
+        val user = getUserDetails()
+        val pendingSharedFlights = service.getPendingSharedFlights(user.uid)
+        return pendingSharedFlights.mapNotNull {
+            val sharedFlightUser = it.sharedUserId?.let { sharedUserId -> usersService.getUserById(sharedUserId) }
+            val sharedUserData = sharedFlightUser?.let {
+                SharedUserData(
+                    sharedFlightUser.userId,
+                    sharedFlightUser.email,
+                    sharedFlightUser.nick,
+                    sharedFlightUser.avatar
+                )
+            }
+            val flight = flightsService.getFlightById(it.ownerId, it.flightId)
+            flight?.let { f ->
+                SharedFlightResponse(
+                    it.sharedFlightId,
+                    f,
+                    it.ownerId,
+                    sharedUserData
+                )
+            }
+        }
     }
 
     @GetMapping("/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -105,16 +128,23 @@ class SharedFlightsRestController : BaseRestController() {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun poshSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String) {
         val user = getUserDetails()
+        logger.info("Joining flight: ${user.email}")
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
         )
+        service.getSharedFlightsBySharedUserIdAndFlightId(user.uid, sharedFlight.flightId)?.let {
+            throw FlightAlreadySharedException(sharedFlight.flightId)
+        }
+        if (sharedFlight.ownerId == user.uid) {
+            throw  JoiningOwnFlightException()
+        }
         if (sharedFlight.isConfirmed) {
             throw  AlreadyConfirmedException(sharedFlightId)
         }
         sharedFlight.sharedUserId?.let {
             throw AlreadyJoinedException(sharedFlightId)
         }
-        // TODO send notification to owner
+        firebaseMessagingService.sendSharedFlightUserJoinedMessage(sharedFlight)
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
 

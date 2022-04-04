@@ -11,3 +11,11 @@ class AlreadyJoinedException(sharedFlightId: String) : ApiException(
 class UserNotJoinedException(sharedFlightId: String) : ApiException(
     "No user has joined shared flight with id '$sharedFlightId'"
 )
+
+class FlightAlreadySharedException(flightId: String) : ApiException(
+    "Flight with id '$flightId' has been already shared"
+)
+
+class JoiningOwnFlightException : ApiException(
+    "It is not possible to join own flight"
+)
