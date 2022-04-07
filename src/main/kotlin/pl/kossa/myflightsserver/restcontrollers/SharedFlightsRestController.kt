@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
+import pl.kossa.myflightsserver.data.responses.SharedFlightJoinDetails
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedFlightResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedUserData
 import pl.kossa.myflightsserver.exceptions.*
@@ -122,6 +123,35 @@ class SharedFlightsRestController : BaseRestController() {
         }
         firebaseMessagingService.sendSharedFlightConfirmationMessage(sharedFlight.sharedUserId)
         service.save(sharedFlight.copy(isConfirmed = true))
+    }
+
+    @GetMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getSharedFlightBeforeJoin(@PathVariable("sharedFlightId") sharedFlightId: String): SharedFlightJoinDetails {
+        val user = getUserDetails()
+        val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
+            "Shared flight with id '$sharedFlightId' not found"
+        )
+        service.getSharedFlightsBySharedUserIdAndFlightId(user.uid, sharedFlight.flightId)?.let {
+            throw FlightAlreadySharedException(sharedFlight.flightId)
+        }
+        if (sharedFlight.ownerId == user.uid) {
+            throw  JoiningOwnFlightException()
+        }
+        if (sharedFlight.isConfirmed) {
+            throw  AlreadyConfirmedException(sharedFlightId)
+        }
+        sharedFlight.sharedUserId?.let {
+            throw AlreadyJoinedException(sharedFlightId)
+        }
+        val flight = flightsService.getFlightById(sharedFlight.ownerId, sharedFlight.flightId)
+            ?: throw NotFoundException("Flight with id '${sharedFlight.flightId}' not found")
+        val ownerUser =
+            usersService.getUserById(sharedFlight.ownerId) ?: throw NotFoundException("Flight owner not found")
+
+        return SharedFlightJoinDetails(
+            flight,
+            SharedUserData(ownerUser.userId, ownerUser.email, ownerUser.nick, ownerUser.avatar)
+        )
     }
 
     @PutMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])

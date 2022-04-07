@@ -21,7 +21,11 @@ interface SharedFlightsRepository : CoroutineCrudRepository<SharedFlight, String
 
     suspend fun findAllByOwnerIdAndFlightId(userId: String, flightId: String): List<SharedFlight>
 
-    suspend fun findBySharedUserIdAndFlightId(sharedUserId: String, flightId: String): SharedFlight?
+    suspend fun findBySharedUserIdAndFlightIdAndIsConfirmed(
+        sharedUserId: String,
+        flightId: String,
+        isConfirmed: Boolean
+    ): SharedFlight?
 
     suspend fun findAllBySharedUserIdAndIsConfirmed(sharedUserId: String, isConfirmed: Boolean): List<SharedFlight>
 

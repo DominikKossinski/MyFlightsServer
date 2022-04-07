@@ -12,7 +12,7 @@ data class SharedFlightResponse(
 
 data class SharedUserData(
     val userId: String,
-    val email: String?,
+    val email: String,
     val nick: String,
     val avatar: Image?,
 )
