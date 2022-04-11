@@ -96,7 +96,7 @@ class SharedFlightsRestController : BaseRestController() {
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
         val sharedFlight = service.getSharedFlightByFlightId(user.uid, flightId)
         sharedFlight?.let {
-            return CreatedResponse(it.flightId)
+            return CreatedResponse(it.sharedFlightId)
         }
         val newSharedFlight = SharedFlight(
             UUID.randomUUID().toString(),
