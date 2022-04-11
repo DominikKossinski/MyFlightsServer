@@ -5,9 +5,11 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.MulticastMessage
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import pl.kossa.myflightsserver.data.messagning.NotificationType
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.models.User
 import pl.kossa.myflightsserver.exceptions.NotFoundException
+import pl.kossa.myflightsserver.localization.NotificationsMessageSource
 
 @Service("FirebaseMessagingService")
 class FirebaseMessagingService {
@@ -15,29 +17,39 @@ class FirebaseMessagingService {
     @Autowired
     lateinit var usersService: UsersService
 
+    @Autowired
+    lateinit var notificationsMessageSource: NotificationsMessageSource
+
+    //TODO pass user locale
     suspend fun sendSharedFlightConfirmationMessage(sharedUserId: String) {
         val user = usersService.getUserById(sharedUserId)
             ?: throw NotFoundException("User with id '$sharedUserId' not found.")
+        val title =
+            notificationsMessageSource.getTitle(NotificationType.USER_ACCEPTED_JOIN_REQUEST)
+        val body = notificationsMessageSource.getBody(NotificationType.USER_ACCEPTED_JOIN_REQUEST)
         val message = MulticastMessage.builder()
             .addAllTokens(user.fcmTokens)
-            .putData("title", "User confirmed")
-            .putData("message", "Message")
+            .putData("title", title)
+            .putData("body", body)
+            .putData("notificationType", NotificationType.USER_ACCEPTED_JOIN_REQUEST.name)
             .build()
-        // TODO deeplink
         val response = FirebaseMessaging.getInstance().sendMulticast(message)
         handleBatchResponse(user, response)
     }
 
-    suspend fun sendSharedFlightUserJoinedMessage(sharedFlight: SharedFlight) {
+    //TODO pass user locale
+    suspend fun sendUserSendJoinRequestNotification(sharedFlight: SharedFlight, userName: String) {
         val user = usersService.getUserById(sharedFlight.ownerId)
             ?: throw  NotFoundException("User with id '${sharedFlight.ownerId}' not found")
+        val title =
+            notificationsMessageSource.getTitle(NotificationType.USER_SEND_JOIN_REQUEST)
+        val body = notificationsMessageSource.getBody(NotificationType.USER_SEND_JOIN_REQUEST, arrayOf(userName))
         val message = MulticastMessage.builder()
             .addAllTokens(user.fcmTokens)
-            .putData("title", "User joined")
-            .putData("message", "message")
+            .putData("title", title)
+            .putData("body", body)
+            .putData("notificationType", NotificationType.USER_ACCEPTED_JOIN_REQUEST.name)
             .build()
-        //TODO deeplink
-        //TODO message type
         val response = FirebaseMessaging.getInstance().sendMulticast(message)
         handleBatchResponse(user, response)
     }

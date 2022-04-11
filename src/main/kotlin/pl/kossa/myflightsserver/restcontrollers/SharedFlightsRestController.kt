@@ -174,7 +174,8 @@ class SharedFlightsRestController : BaseRestController() {
         sharedFlight.sharedUserId?.let {
             throw AlreadyJoinedException(sharedFlightId)
         }
-        firebaseMessagingService.sendSharedFlightUserJoinedMessage(sharedFlight)
+        val userName = if (user.nick.isNullOrBlank()) user.email else user.nick
+        firebaseMessagingService.sendUserSendJoinRequestNotification(sharedFlight, userName)
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
 
