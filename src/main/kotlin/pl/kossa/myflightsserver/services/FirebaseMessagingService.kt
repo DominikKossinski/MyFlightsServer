@@ -21,7 +21,7 @@ class FirebaseMessagingService {
     lateinit var notificationsMessageSource: NotificationsMessageSource
 
     //TODO pass user locale
-    suspend fun sendSharedFlightConfirmationMessage(sharedUserId: String) {
+    suspend fun sendSharedFlightConfirmationMessage(sharedUserId: String, flightId: String) {
         val user = usersService.getUserById(sharedUserId)
             ?: throw NotFoundException("User with id '$sharedUserId' not found.")
         val title =
@@ -32,13 +32,18 @@ class FirebaseMessagingService {
             .putData("title", title)
             .putData("body", body)
             .putData("notificationType", NotificationType.USER_ACCEPTED_JOIN_REQUEST.name)
+            .putData("flightId", flightId)
             .build()
         val response = FirebaseMessaging.getInstance().sendMulticast(message)
         handleBatchResponse(user, response)
     }
 
     //TODO pass user locale
-    suspend fun sendUserSendJoinRequestNotification(sharedFlight: SharedFlight, userName: String) {
+    suspend fun sendUserSendJoinRequestNotification(
+        sharedFlight: SharedFlight,
+        userName: String,
+        sharedFlightId: String
+    ) {
         val user = usersService.getUserById(sharedFlight.ownerId)
             ?: throw  NotFoundException("User with id '${sharedFlight.ownerId}' not found")
         val title =
@@ -48,7 +53,8 @@ class FirebaseMessagingService {
             .addAllTokens(user.fcmTokens)
             .putData("title", title)
             .putData("body", body)
-            .putData("notificationType", NotificationType.USER_ACCEPTED_JOIN_REQUEST.name)
+            .putData("notificationType", NotificationType.USER_SEND_JOIN_REQUEST.name)
+            .putData("sharedFlightId", sharedFlightId)
             .build()
         val response = FirebaseMessaging.getInstance().sendMulticast(message)
         handleBatchResponse(user, response)

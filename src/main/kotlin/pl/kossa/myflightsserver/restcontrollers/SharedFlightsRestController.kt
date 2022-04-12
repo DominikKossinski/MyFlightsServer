@@ -121,7 +121,7 @@ class SharedFlightsRestController : BaseRestController() {
         if (sharedFlight.isConfirmed) {
             throw AlreadyConfirmedException(sharedFlightId)
         }
-        firebaseMessagingService.sendSharedFlightConfirmationMessage(sharedFlight.sharedUserId)
+        firebaseMessagingService.sendSharedFlightConfirmationMessage(sharedFlight.sharedUserId, sharedFlight.flightId)
         service.save(sharedFlight.copy(isConfirmed = true))
     }
 
@@ -175,7 +175,7 @@ class SharedFlightsRestController : BaseRestController() {
             throw AlreadyJoinedException(sharedFlightId)
         }
         val userName = if (user.nick.isNullOrBlank()) user.email else user.nick
-        firebaseMessagingService.sendUserSendJoinRequestNotification(sharedFlight, userName)
+        firebaseMessagingService.sendUserSendJoinRequestNotification(sharedFlight, userName, sharedFlightId)
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
 
