@@ -3,7 +3,6 @@ package pl.kossa.myflightsserver.config
 import com.google.cloud.storage.StorageOptions
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -15,8 +14,6 @@ import javax.sql.DataSource
 @Profile("test")
 @Configuration
 class DataSourceTestConfig {
-
-    val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
     fun dataSource(): DataSource {
@@ -87,5 +84,15 @@ class DataSourceTestConfig {
     @Bean
     fun storageOptions(): StorageOptions {
         return mock(StorageOptions::class.java)
+    }
+
+    @Bean
+    fun sharedFlightsRepository(): SharedFlightsRepository {
+        return SharedFlightsRepositoryMock()
+    }
+
+    @Bean
+    fun sharedFlightsService(): SharedFlightsService {
+        return SharedFlightsService()
     }
 }

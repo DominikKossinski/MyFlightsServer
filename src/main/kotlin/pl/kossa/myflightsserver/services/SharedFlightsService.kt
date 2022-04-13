@@ -43,4 +43,7 @@ class SharedFlightsService {
 
     suspend fun getSharedFlightsBySharedUserIdAndFlightId(userId: String, flightId: String) =
         repository.getSharedFlightsBySharedUserIdAndFlightId(userId, flightId)
+
+    suspend fun getPendingJoinRequests(sharedUserId: String) =
+        repository.findAllBySharedUserIdAndIsConfirmed(sharedUserId, false)
 }

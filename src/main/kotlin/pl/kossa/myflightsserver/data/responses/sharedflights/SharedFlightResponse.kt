@@ -7,6 +7,7 @@ data class SharedFlightResponse(
     val sharedFlightId: String,
     val flight: Flight,
     val ownerId: String,
+    val ownerData: SharedUserData,
     val sharedUserData: SharedUserData?
 )
 

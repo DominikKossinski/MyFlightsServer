@@ -1,9 +1,6 @@
 package pl.kossa.myflightsserver.datasource
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import pl.kossa.myflightsserver.data.models.Airplane
 import pl.kossa.myflightsserver.repositories.AirplanesRepository
 
@@ -21,15 +18,15 @@ class AirplanesRepositoryMock : AirplanesRepository {
 
     override suspend fun deleteAllByUserId(userId: String) {
         val toDelete = airplanes.filter { it.userId == userId }
-        airplanes.removeAll(toDelete)
+        airplanes.removeAll(toDelete.toSet())
     }
 
     override suspend fun deleteAll(entities: Iterable<Airplane>) {
-        airplanes.removeAll(entities)
+        airplanes.removeAll(entities.toSet())
     }
 
     override suspend fun <S : Airplane> deleteAll(entityStream: Flow<S>) {
-        airplanes.removeAll(entityStream.toList())
+        airplanes.removeAll(entityStream.toSet())
     }
 
     override suspend fun deleteAllById(ids: Iterable<String>) {

@@ -40,7 +40,9 @@ class SharedFlightsRestController : BaseRestController() {
     suspend fun getPendingSharedFlights(): List<SharedFlightResponse> {
         val user = getUserDetails()
         val pendingSharedFlights = service.getPendingSharedFlights(user.uid)
-        return pendingSharedFlights.mapNotNull {
+        val pendingJoinRequests = service.getPendingJoinRequests(user.uid)
+        val allSharedFlights = pendingSharedFlights + pendingJoinRequests
+        return allSharedFlights.mapNotNull {
             val sharedFlightUser = it.sharedUserId?.let { sharedUserId -> usersService.getUserById(sharedUserId) }
             val sharedUserData = sharedFlightUser?.let {
                 SharedUserData(
@@ -51,11 +53,19 @@ class SharedFlightsRestController : BaseRestController() {
                 )
             }
             val flight = flightsService.getFlightById(it.ownerId, it.flightId)
+            val ownerUser = usersService.getUserById(it.ownerId) ?: return@mapNotNull null
+            val ownerData = SharedUserData(
+                ownerUser.userId,
+                ownerUser.email,
+                ownerUser.nick,
+                ownerUser.avatar
+            )
             flight?.let { f ->
                 SharedFlightResponse(
                     it.sharedFlightId,
                     f,
                     it.ownerId,
+                    ownerData,
                     sharedUserData
                 )
             }
@@ -80,10 +90,19 @@ class SharedFlightsRestController : BaseRestController() {
         }
         val flight = flightsService.getFlightById(sharedFlight.ownerId, sharedFlight.flightId)
             ?: throw NotFoundException("Flight with id '${sharedFlight.flightId}' not found.")
+        val owner = usersService.getUserById(sharedFlight.ownerId)
+            ?: throw NotFoundException("Owner not found")
+        val ownerData = SharedUserData(
+            owner.userId,
+            owner.email,
+            owner.nick,
+            owner.avatar
+        )
         return SharedFlightResponse(
             sharedFlightId,
             flight,
             sharedFlight.ownerId,
+            ownerData,
             sharedUserData
         )
     }
