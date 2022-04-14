@@ -3,6 +3,7 @@ package pl.kossa.myflightsserver.data.models
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import java.util.*
 
 @Document
 data class SharedFlight(
@@ -17,6 +18,7 @@ data class SharedFlight(
 
     val sharedUserId: String?,
 
-    val isConfirmed: Boolean
+    val isConfirmed: Boolean,
 
+    val expiresAt: Date
 )

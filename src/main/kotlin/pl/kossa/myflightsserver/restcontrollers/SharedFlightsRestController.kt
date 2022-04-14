@@ -1,16 +1,18 @@
 package pl.kossa.myflightsserver.restcontrollers
 
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.SharedFlight
-import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.data.responses.SharedFlightJoinDetails
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedFlightResponse
 import pl.kossa.myflightsserver.data.responses.sharedflights.SharedUserData
 import pl.kossa.myflightsserver.exceptions.*
+import pl.kossa.myflightsserver.extensions.plusMinutes
 import pl.kossa.myflightsserver.services.FirebaseMessagingService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.SharedFlightsService
@@ -28,6 +30,9 @@ class SharedFlightsRestController : BaseRestController() {
 
     @Autowired
     private lateinit var firebaseMessagingService: FirebaseMessagingService
+
+    @Autowired
+    private lateinit var threadPoolTaskScheduler: ThreadPoolTaskScheduler
 
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -109,23 +114,38 @@ class SharedFlightsRestController : BaseRestController() {
 
     @PostMapping("/share/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun postSharedFlight(@PathVariable("flightId") flightId: String): CreatedResponse {
+    suspend fun postSharedFlight(@PathVariable("flightId") flightId: String): SharedFlight {
         val user = getUserDetails()
         flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
         val sharedFlight = service.getSharedFlightByFlightId(user.uid, flightId)
         sharedFlight?.let {
-            return CreatedResponse(it.sharedFlightId)
+            if (Date() < it.expiresAt) {
+                return sharedFlight
+            } else {
+                service.deleteSharedFlightById(sharedFlight.sharedFlightId)
+            }
         }
+        val expiresAt = Date().plusMinutes(1)
         val newSharedFlight = SharedFlight(
             UUID.randomUUID().toString(),
             flightId,
             user.uid,
             null,
-            false
+            false,
+            expiresAt,
         )
-        val savedSharedFlight: SharedFlight = service.save(newSharedFlight)
-        return CreatedResponse(savedSharedFlight.sharedFlightId)
+        val deleteTask = Runnable {
+            runBlocking {
+                val sf = service.getSharedFlightByFlightId(user.uid, flightId) ?: return@runBlocking
+                if (sf.sharedUserId == null) {
+                    logger.info("Deleting not joined sharedFlight")
+                    service.deleteSharedFlightById(sf.sharedFlightId)
+                }
+            }
+        }
+        threadPoolTaskScheduler.schedule(deleteTask, expiresAt)
+        return service.save(newSharedFlight)
     }
 
     @PutMapping("/confirm/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -136,7 +156,7 @@ class SharedFlightsRestController : BaseRestController() {
             service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
             )
-        sharedFlight.sharedUserId ?: throw  UserNotJoinedException(sharedFlightId)
+        sharedFlight.sharedUserId ?: throw UserNotJoinedException(sharedFlightId)
         if (sharedFlight.isConfirmed) {
             throw AlreadyConfirmedException(sharedFlightId)
         }
@@ -150,14 +170,20 @@ class SharedFlightsRestController : BaseRestController() {
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
         )
+        if (sharedFlight.expiresAt < Date()) {
+            service.deleteSharedFlightById(sharedFlightId)
+            throw NotFoundException(
+                "Shared flight with id '$sharedFlightId' not found"
+            )
+        }
         service.getSharedFlightsBySharedUserIdAndFlightId(user.uid, sharedFlight.flightId)?.let {
             throw FlightAlreadySharedException(sharedFlight.flightId)
         }
         if (sharedFlight.ownerId == user.uid) {
-            throw  JoiningOwnFlightException()
+            throw JoiningOwnFlightException()
         }
         if (sharedFlight.isConfirmed) {
-            throw  AlreadyConfirmedException(sharedFlightId)
+            throw AlreadyConfirmedException(sharedFlightId)
         }
         sharedFlight.sharedUserId?.let {
             throw AlreadyJoinedException(sharedFlightId)
@@ -175,20 +201,26 @@ class SharedFlightsRestController : BaseRestController() {
 
     @PutMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun poshSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String) {
+    suspend fun postSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String) {
         val user = getUserDetails()
         logger.info("Joining flight: ${user.email}")
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
         )
+        if (sharedFlight.expiresAt < Date()) {
+            service.deleteSharedFlightById(sharedFlightId)
+            throw NotFoundException(
+                "Shared flight with id '$sharedFlightId' not found"
+            )
+        }
         service.getSharedFlightsBySharedUserIdAndFlightId(user.uid, sharedFlight.flightId)?.let {
             throw FlightAlreadySharedException(sharedFlight.flightId)
         }
         if (sharedFlight.ownerId == user.uid) {
-            throw  JoiningOwnFlightException()
+            throw JoiningOwnFlightException()
         }
         if (sharedFlight.isConfirmed) {
-            throw  AlreadyConfirmedException(sharedFlightId)
+            throw AlreadyConfirmedException(sharedFlightId)
         }
         sharedFlight.sharedUserId?.let {
             throw AlreadyJoinedException(sharedFlightId)
