@@ -40,10 +40,12 @@ enum class ProviderType {
     }
 }
 
-enum class Language {
-    ENGLISH,
-    GERMAN,
-    POLISH;
+enum class Language(
+    val locale: Locale
+) {
+    ENGLISH(Locale.US),
+    GERMAN(Locale.GERMANY),
+    POLISH(Locale("pl", "PL"));
 
     companion object {
         fun getFormLocale(locale: Locale): Language {

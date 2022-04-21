@@ -6,11 +6,11 @@ import com.google.firebase.messaging.MulticastMessage
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import pl.kossa.myflightsserver.data.messagning.NotificationType
+import pl.kossa.myflightsserver.data.models.Language
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.models.User
 import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.localization.NotificationsMessageSource
-import java.util.*
 
 @Service("FirebaseMessagingService")
 class FirebaseMessagingService {
@@ -22,12 +22,13 @@ class FirebaseMessagingService {
     lateinit var notificationsMessageSource: NotificationsMessageSource
 
     //TODO pass user locale
-    suspend fun sendSharedFlightConfirmationMessage(sharedUserId: String, flightId: String, locale: Locale) {
+    suspend fun sendSharedFlightConfirmationMessage(sharedUserId: String, flightId: String, language: Language) {
         val user = usersService.getUserById(sharedUserId)
             ?: throw NotFoundException("User with id '$sharedUserId' not found.")
         val title =
-            notificationsMessageSource.getTitle(NotificationType.USER_ACCEPTED_JOIN_REQUEST, null, locale)
-        val body = notificationsMessageSource.getBody(NotificationType.USER_ACCEPTED_JOIN_REQUEST, null, locale)
+            notificationsMessageSource.getTitle(NotificationType.USER_ACCEPTED_JOIN_REQUEST, null, language.locale)
+        val body =
+            notificationsMessageSource.getBody(NotificationType.USER_ACCEPTED_JOIN_REQUEST, null, language.locale)
         val message = MulticastMessage.builder()
             .addAllTokens(user.fcmTokens)
             .putData("title", title)
@@ -43,13 +44,18 @@ class FirebaseMessagingService {
     suspend fun sendUserSendJoinRequestNotification(
         sharedFlight: SharedFlight,
         userName: String,
-        sharedFlightId: String
+        sharedFlightId: String,
+        language: Language
     ) {
         val user = usersService.getUserById(sharedFlight.ownerId)
             ?: throw NotFoundException("User with id '${sharedFlight.ownerId}' not found")
         val title =
-            notificationsMessageSource.getTitle(NotificationType.USER_SEND_JOIN_REQUEST)
-        val body = notificationsMessageSource.getBody(NotificationType.USER_SEND_JOIN_REQUEST, arrayOf(userName))
+            notificationsMessageSource.getTitle(NotificationType.USER_SEND_JOIN_REQUEST, locale = language.locale)
+        val body = notificationsMessageSource.getBody(
+            NotificationType.USER_SEND_JOIN_REQUEST,
+            arrayOf(userName),
+            locale = language.locale
+        )
         val message = MulticastMessage.builder()
             .addAllTokens(user.fcmTokens)
             .putData("title", title)

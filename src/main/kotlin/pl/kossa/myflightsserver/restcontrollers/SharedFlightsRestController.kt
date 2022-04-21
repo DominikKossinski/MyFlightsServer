@@ -2,7 +2,6 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
@@ -164,11 +163,12 @@ class SharedFlightsRestController : BaseRestController() {
         if (sharedFlight.isConfirmed) {
             throw AlreadyConfirmedException(sharedFlightId)
         }
-        logger.info("Locale: ${LocaleContextHolder.getLocale()}")
+        val sharedUser =
+            usersService.getUserById(sharedFlight.sharedUserId) ?: throw NotFoundException("Shared user not found")
         firebaseMessagingService.sendSharedFlightConfirmationMessage(
             sharedFlight.sharedUserId,
             sharedFlight.flightId,
-            locale
+            sharedUser.language
         )
         service.save(sharedFlight.copy(isConfirmed = true))
     }
@@ -219,6 +219,8 @@ class SharedFlightsRestController : BaseRestController() {
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
         )
+        val owner = usersService.getUserById(sharedFlight.ownerId)
+            ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
         if (sharedFlight.expiresAt < Date()) {
             service.deleteSharedFlightById(sharedFlightId)
             throw NotFoundException(
@@ -238,7 +240,12 @@ class SharedFlightsRestController : BaseRestController() {
             throw AlreadyJoinedException(sharedFlightId)
         }
         val userName = if (user.nick.isNullOrBlank()) user.email else user.nick
-        firebaseMessagingService.sendUserSendJoinRequestNotification(sharedFlight, userName, sharedFlightId)
+        firebaseMessagingService.sendUserSendJoinRequestNotification(
+            sharedFlight,
+            userName,
+            sharedFlightId,
+            owner.language
+        )
         service.save(sharedFlight.copy(sharedUserId = user.uid))
     }
 
