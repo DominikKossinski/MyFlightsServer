@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import pl.kossa.myflightsserver.config.security.SecurityService
 import pl.kossa.myflightsserver.data.UserDetails
 import pl.kossa.myflightsserver.data.models.Image
+import pl.kossa.myflightsserver.data.models.Language
 import pl.kossa.myflightsserver.data.models.User
 import pl.kossa.myflightsserver.exceptions.UnauthorizedException
 import pl.kossa.myflightsserver.services.ImagesService
 import pl.kossa.myflightsserver.services.UsersService
+import java.util.*
 
 abstract class BaseRestController {
 
@@ -29,9 +31,10 @@ abstract class BaseRestController {
     protected lateinit var storageOptions: StorageOptions
 
 
-    protected suspend fun getUserDetails(): UserDetails {
+    protected suspend fun getUserDetails(locale: Locale): UserDetails {
         val user = securityService.getUser() ?: throw UnauthorizedException()
         val dbUser = usersService.getUserByEmail(user.email)
+        val language = Language.getFormLocale(locale)
         if (dbUser == null) {
             logger.info("Creating database user ${user.email}")
             val oldUser = usersService.getUserById(user.uid)
@@ -46,10 +49,23 @@ abstract class BaseRestController {
                     avatar,
                     oldUser?.fcmTokens ?: arrayListOf(),
                     regulationsAccepted,
-                    user.providerType
+                    user.providerType,
+                    language
                 )
             )
-            return UserDetails(user.uid, user.email, user.isEmailVerified, null, null, false, user.providerType)
+            return UserDetails(
+                user.uid,
+                user.email,
+                user.isEmailVerified,
+                null,
+                null,
+                false,
+                user.providerType,
+                language
+            )
+        }
+        if (dbUser.language != language) {
+            usersService.saveUser(dbUser.copy(language = language))
         }
         return UserDetails(
             user.uid,
@@ -58,7 +74,8 @@ abstract class BaseRestController {
             dbUser.nick,
             dbUser.avatar,
             dbUser.regulationsAccepted,
-            user.providerType
+            user.providerType,
+            language
         )
     }
 

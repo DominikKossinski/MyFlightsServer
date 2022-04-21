@@ -57,8 +57,8 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = ForbiddenError::class))]
         )]
     )
-    suspend fun getUserFlights(): List<FlightResponse> {
-        val user = getUserDetails()
+    suspend fun getUserFlights(locale: Locale): List<FlightResponse> {
+        val user = getUserDetails(locale)
         val userFlights = flightsService.getFlightsByUserIdAndPlanned(user.uid, false)
         val sharedFlights = sharedFlightsService.getSharedFlightsBySharedUserId(user.uid).mapNotNull {
             flightsService.getFlightById(it.ownerId, it.flightId)
@@ -98,8 +98,8 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = ForbiddenError::class))]
         )]
     )
-    suspend fun getUserPlannedFlights(): List<FlightResponse> {
-        val user = getUserDetails()
+    suspend fun getUserPlannedFlights(locale: Locale): List<FlightResponse> {
+        val user = getUserDetails(locale)
         val userFlights = flightsService.getFlightsByUserIdAndPlanned(user.uid, true)
         val sharedFlights = sharedFlightsService.getSharedFlightsBySharedUserId(user.uid).mapNotNull {
             flightsService.getFlightById(it.ownerId, it.flightId)
@@ -143,8 +143,8 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun getFlightById(@PathVariable("flightId") flightId: String): FlightResponse {
-        val user = getUserDetails()
+    suspend fun getFlightById(@PathVariable("flightId") flightId: String, locale: Locale): FlightResponse {
+        val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
             ?: sharedFlightsService.getSharedFlightBySharedUserIdAndFlightId(user.uid, flightId)?.let {
                 flightsService.getFlightById(it.ownerId, flightId)
@@ -184,8 +184,8 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun postFlight(@RequestBody flightRequest: FlightRequest): CreatedResponse {
-        val user = getUserDetails()
+    suspend fun postFlight(@RequestBody flightRequest: FlightRequest, locale: Locale): CreatedResponse {
+        val user = getUserDetails(locale)
         val flight = validateFlightRequest(flightRequest, user)
         val flightAdded = flightsService.saveFlight(flight)
         return CreatedResponse(flightAdded.flightId)
@@ -210,8 +210,12 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun putFlight(@PathVariable("flightId") flightId: String, @RequestBody flightRequest: FlightRequest) {
-        val user = getUserDetails()
+    suspend fun putFlight(
+        @PathVariable("flightId") flightId: String,
+        @RequestBody flightRequest: FlightRequest,
+        locale: Locale
+    ) {
+        val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
         if (flight.image != null && flightRequest.imageId == null) {
@@ -238,8 +242,8 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun deleteFlight(@PathVariable("flightId") flightId: String) {
-        val user = getUserDetails()
+    suspend fun deleteFlight(@PathVariable("flightId") flightId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
         val sharedFlights = sharedFlightsService.getSharedFlightsByOwnerIdAndFlightId(user.uid, flightId)

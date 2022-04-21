@@ -3,6 +3,7 @@ package pl.kossa.myflightsserver.data.models
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
+import java.util.*
 
 @Document
 data class User(
@@ -20,7 +21,9 @@ data class User(
 
     val regulationsAccepted: Boolean,
 
-    val providerType: ProviderType
+    val providerType: ProviderType,
+
+    val language: Language
 )
 
 enum class ProviderType {
@@ -40,5 +43,15 @@ enum class ProviderType {
 enum class Language {
     ENGLISH,
     GERMAN,
-    POLISH
+    POLISH;
+
+    companion object {
+        fun getFormLocale(locale: Locale): Language {
+            return when (locale) {
+                Locale.GERMANY -> GERMAN
+                Locale("pl", "PL") -> POLISH
+                else -> ENGLISH
+            }
+        }
+    }
 }

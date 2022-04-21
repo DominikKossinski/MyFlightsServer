@@ -54,9 +54,10 @@ class AirplanesRestController : BaseRestController() {
             name = "filter",
             defaultValue = "",
             required = false
-        ) filter: String
+        ) filter: String,
+        locale: Locale
     ): List<Airplane> {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         return airplanesService.getAirplanesByUserId(user.uid, filter.lowercase())
     }
 
@@ -81,8 +82,8 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getAirplaneById(@PathVariable("airplaneId") airplaneId: String): Airplane {
-        val user = getUserDetails()
+    suspend fun getAirplaneById(@PathVariable("airplaneId") airplaneId: String, locale: Locale): Airplane {
+        val user = getUserDetails(locale)
         return airplanesService.getAirplaneById(user.uid, airplaneId)
     }
 
@@ -103,8 +104,8 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest): CreatedResponse {
-        val user = getUserDetails()
+    suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest, locale: Locale): CreatedResponse {
+        val user = getUserDetails(locale)
         val image = airplaneRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val airplane = Airplane(
             UUID.randomUUID().toString(),
@@ -146,9 +147,9 @@ class AirplanesRestController : BaseRestController() {
     )
     suspend fun putAirplane(
         @PathVariable("airplaneId") airplaneId: String,
-        @RequestBody @Valid airplaneRequest: AirplaneRequest
+        @RequestBody @Valid airplaneRequest: AirplaneRequest, locale: Locale
     ) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val airplane = airplanesService.getAirplaneById(user.uid, airplaneId)
         if (airplane.image != null && airplaneRequest.imageId == null) {
             deleteImage(airplane.image)
@@ -186,8 +187,8 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteAirplane(@PathVariable("airplaneId") airplaneId: String) {
-        val user = getUserDetails()
+    suspend fun deleteAirplane(@PathVariable("airplaneId") airplaneId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         val flights = flightsService.getFlightsByUserId(user.uid).filter {
             it.airplane.airplaneId == airplaneId
         }

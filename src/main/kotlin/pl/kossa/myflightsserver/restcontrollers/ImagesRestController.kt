@@ -45,9 +45,9 @@ class ImagesRestController : BaseRestController() {
         ]
     )
     suspend fun postImage(
-        @RequestBody image: MultipartFile
+        @RequestBody image: MultipartFile, locale: Locale
     ): ResponseEntity<CreatedResponse> {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val id = UUID.randomUUID().toString()
         val name = id + "." + StringUtils.getFilenameExtension(image.originalFilename)
         logger.info("File name $name")
@@ -84,9 +84,10 @@ class ImagesRestController : BaseRestController() {
     )
     suspend fun putImage(
         @PathVariable("imageId") imageId: String,
-        @RequestBody image: MultipartFile
+        @RequestBody image: MultipartFile,
+        locale: Locale
     ) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val imageDB = imagesService.getImageById(user.uid, imageId)
         val thumbnail = makeThumbnail(image)
         val thumbnailName = imageDB.firestoreName.replace(".", "thumbnail.")

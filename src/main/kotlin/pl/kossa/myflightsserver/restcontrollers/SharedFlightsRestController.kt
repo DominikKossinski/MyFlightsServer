@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.LocaleResolver
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.SharedFlightJoinDetails
@@ -36,18 +35,15 @@ class SharedFlightsRestController : BaseRestController() {
     @Autowired
     private lateinit var threadPoolTaskScheduler: ThreadPoolTaskScheduler
 
-    @Autowired
-    private lateinit var localeResolver: LocaleResolver
-
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getSharedFlights(): List<SharedFlight> {
-        val user = getUserDetails()
+    suspend fun getSharedFlights(locale: Locale): List<SharedFlight> {
+        val user = getUserDetails(locale)
         return service.getSharedFlightsByOwnerId(user.uid)
     }
 
     @GetMapping("/pending", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getPendingSharedFlights(): List<SharedFlightResponse> {
-        val user = getUserDetails()
+    suspend fun getPendingSharedFlights(locale: Locale): List<SharedFlightResponse> {
+        val user = getUserDetails(locale)
         val pendingSharedFlights = service.getPendingSharedFlights(user.uid)
         val pendingJoinRequests = service.getPendingJoinRequests(user.uid)
         val allSharedFlights = pendingSharedFlights + pendingJoinRequests
@@ -82,8 +78,11 @@ class SharedFlightsRestController : BaseRestController() {
     }
 
     @GetMapping("/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String): SharedFlightResponse {
-        val user = getUserDetails()
+    suspend fun getSharedFlight(
+        @PathVariable("sharedFlightId") sharedFlightId: String,
+        locale: Locale
+    ): SharedFlightResponse {
+        val user = getUserDetails(locale)
         val sharedFlight =
             service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
@@ -120,7 +119,7 @@ class SharedFlightsRestController : BaseRestController() {
     @PostMapping("/share/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun postSharedFlight(@PathVariable("flightId") flightId: String, locale: Locale): SharedFlight {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
         val sharedFlight = service.getSharedFlightByFlightId(user.uid, flightId)
@@ -156,7 +155,7 @@ class SharedFlightsRestController : BaseRestController() {
     @PutMapping("/confirm/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun postSharedFlightConfirmation(@PathVariable("sharedFlightId") sharedFlightId: String, locale: Locale) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val sharedFlight =
             service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
                 "Shared flight with id '$sharedFlightId' not found"
@@ -175,8 +174,11 @@ class SharedFlightsRestController : BaseRestController() {
     }
 
     @GetMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getSharedFlightBeforeJoin(@PathVariable("sharedFlightId") sharedFlightId: String): SharedFlightJoinDetails {
-        val user = getUserDetails()
+    suspend fun getSharedFlightBeforeJoin(
+        @PathVariable("sharedFlightId") sharedFlightId: String,
+        locale: Locale
+    ): SharedFlightJoinDetails {
+        val user = getUserDetails(locale)
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
         )
@@ -211,8 +213,8 @@ class SharedFlightsRestController : BaseRestController() {
 
     @PutMapping("/join/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun postSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String) {
-        val user = getUserDetails()
+    suspend fun postSharedFlightJoin(@PathVariable("sharedFlightId") sharedFlightId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         logger.info("Joining flight: ${user.email}")
         val sharedFlight = service.getSharedFlightBySharedFlightId(sharedFlightId) ?: throw NotFoundException(
             "Shared flight with id '$sharedFlightId' not found"
@@ -242,8 +244,8 @@ class SharedFlightsRestController : BaseRestController() {
 
     @DeleteMapping("/{sharedFlightId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun deleteSharedFlightById(@PathVariable("sharedFlightId") sharedFlightId: String) {
-        val user = getUserDetails()
+    suspend fun deleteSharedFlightById(@PathVariable("sharedFlightId") sharedFlightId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId)
             ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
         service.deleteSharedFlightById(sharedFlightId)
@@ -251,8 +253,8 @@ class SharedFlightsRestController : BaseRestController() {
 
     @DeleteMapping("/resign/{sharedFlightId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun resignFromSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String) {
-        val user = getUserDetails()
+    suspend fun resignFromSharedFlight(@PathVariable("sharedFlightId") sharedFlightId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         service.getSharedFlightBySharedUserIdAndSharedFlightId(user.uid, sharedFlightId)
             ?: throw NotFoundException("Shared flight with id '$sharedFlightId' not found")
         service.deleteSharedFlightById(sharedFlightId)

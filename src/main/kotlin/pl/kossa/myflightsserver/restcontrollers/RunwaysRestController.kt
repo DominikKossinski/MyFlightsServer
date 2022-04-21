@@ -59,9 +59,9 @@ class RunwaysRestController : BaseRestController() {
         ]
     )
     suspend fun getRunwayById(
-        @PathVariable("runwayId") runwayId: String,
+        @PathVariable("runwayId") runwayId: String, locale: Locale
     ): Runway {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         return runwaysService.getRunwayById(user.uid, runwayId)
     }
 
@@ -88,9 +88,10 @@ class RunwaysRestController : BaseRestController() {
     )
     suspend fun postRunway(
         @PathVariable("airportId") airportId: String,
-        @RequestBody @Valid runwayRequest: RunwayRequest
+        @RequestBody @Valid runwayRequest: RunwayRequest,
+        locale: Locale
     ): CreatedResponse {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         val image = runwayRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val runway = runwayRequest.toRunway(UUID.randomUUID().toString(), image, user.uid)
@@ -129,9 +130,10 @@ class RunwaysRestController : BaseRestController() {
     suspend fun putRunway(
         @PathVariable("airportId") airportId: String,
         @PathVariable("runwayId") runwayId: String,
-        @RequestBody @Valid runwayRequest: RunwayRequest
+        @RequestBody @Valid runwayRequest: RunwayRequest,
+        locale: Locale
     ) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         val runway = airport.runways.find { it.runwayId == runwayId }
             ?: throw NotFoundException("Runway with id '$runwayId' not found.")
@@ -166,9 +168,9 @@ class RunwaysRestController : BaseRestController() {
         ]
     )
     suspend fun deleteRunway(
-        @PathVariable("airportId") airportId: String, @PathVariable("runwayId") runwayId: String
+        @PathVariable("airportId") airportId: String, @PathVariable("runwayId") runwayId: String, locale: Locale
     ) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         val runway = airport.runways.find { it.runwayId == runwayId }
             ?: throw NotFoundException("Runway with id '$runwayId' not found.")

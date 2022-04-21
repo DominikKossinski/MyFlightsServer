@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.UserDetails
+import pl.kossa.myflightsserver.data.models.Language
 import pl.kossa.myflightsserver.data.models.User
 import pl.kossa.myflightsserver.data.requests.FCMTokenRequest
 import pl.kossa.myflightsserver.data.requests.UserRequest
@@ -22,6 +23,7 @@ import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
 import pl.kossa.myflightsserver.services.RunwaysService
+import java.util.*
 import javax.validation.Valid
 
 @RestController
@@ -56,8 +58,8 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUser(): UserDetails {
-        return getUserDetails()
+    suspend fun getUser(locale: Locale): UserDetails {
+        return getUserDetails(locale)
     }
 
 
@@ -78,8 +80,8 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putUser(@Valid @RequestBody userRequest: UserRequest) {
-        val user = getUserDetails()
+    suspend fun putUser(@Valid @RequestBody userRequest: UserRequest, locale: Locale) {
+        val user = getUserDetails(locale)
         val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
         if (userRequest.imageId == null && user.avatar != null) {
             deleteImage(user.avatar)
@@ -88,6 +90,7 @@ class UsersRestController : BaseRestController() {
             deleteImage(user.avatar)
         }
         val image = userRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
+        val language = Language.getFormLocale(locale)
         val updatedUser =
             User(
                 user.uid,
@@ -96,7 +99,8 @@ class UsersRestController : BaseRestController() {
                 image,
                 dbUser.fcmTokens,
                 userRequest.regulationsAccepted,
-                user.providerType
+                user.providerType,
+                language
             )
         usersService.saveUser(updatedUser)
     }
@@ -123,8 +127,8 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteUser() {
-        val user = getUserDetails()
+    suspend fun deleteUser(locale: Locale) {
+        val user = getUserDetails(locale)
 
         flightsService.deleteAllByUserId(user.uid)
         airplanesService.deleteAllByUserId(user.uid)
@@ -154,8 +158,8 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest) {
-        val user = getUserDetails()
+    suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest, locale: Locale) {
+        val user = getUserDetails(locale)
         val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
         val newUser = dbUser.copy()
         fcmTokenRequest.fcmToken?.let {

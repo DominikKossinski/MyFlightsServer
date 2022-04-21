@@ -22,6 +22,7 @@ import pl.kossa.myflightsserver.extensions.roundTo
 import pl.kossa.myflightsserver.services.AirplanesService
 import pl.kossa.myflightsserver.services.AirportsService
 import pl.kossa.myflightsserver.services.FlightsService
+import java.util.*
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -57,8 +58,8 @@ class StatisticsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUserStats(): StatisticsResponse {
-        val user = getUserDetails()
+    suspend fun getUserStats(locale: Locale): StatisticsResponse {
+        val user = getUserDetails(locale)
         val flights = flightsService.getFlightsByUserId(user.uid)
         val flightHours = flights.map {
             ((it.arrivalDate.time - it.departureDate.time).toDouble() / (60f * 60f * 1_000f).toDouble()).roundTo(2)

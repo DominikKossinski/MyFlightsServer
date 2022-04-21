@@ -58,9 +58,10 @@ class AirportsRestController : BaseRestController() {
             name = "filter",
             defaultValue = "",
             required = false
-        ) filter: String
+        ) filter: String,
+        locale: Locale
     ): List<Airport> {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         return airportsService.getAirportsByUserId(user.uid, filter)
     }
 
@@ -85,8 +86,8 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getAirportById(@PathVariable("airportId") airportId: String): Airport {
-        val user = getUserDetails()
+    suspend fun getAirportById(@PathVariable("airportId") airportId: String, locale: Locale): Airport {
+        val user = getUserDetails(locale)
         return airportsService.getAirportById(user.uid, airportId)
     }
 
@@ -107,8 +108,8 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest): CreatedResponse {
-        val user = getUserDetails()
+    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest, locale: Locale): CreatedResponse {
+        val user = getUserDetails(locale)
         val image = airportRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val airport =
             airportsService.saveAirport(airportRequest.toAirport(UUID.randomUUID().toString(), image, user.uid))
@@ -143,9 +144,10 @@ class AirportsRestController : BaseRestController() {
     )
     suspend fun putAirport(
         @PathVariable("airportId") airportId: String,
-        @RequestBody @Valid airportRequest: AirportRequest
+        @RequestBody @Valid airportRequest: AirportRequest,
+        locale: Locale
     ) {
-        val user = getUserDetails()
+        val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         if (airport.image != null && airportRequest.imageId == null) {
             deleteImage(airport.image)
@@ -176,8 +178,8 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteAirport(@PathVariable("airportId") airportId: String) {
-        val user = getUserDetails()
+    suspend fun deleteAirport(@PathVariable("airportId") airportId: String, locale: Locale) {
+        val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         val flights = flightsService.getFlightsByUserId(user.uid).filter {
             it.departureAirport.airportId == airportId || it.arrivalAirport.airportId == airportId

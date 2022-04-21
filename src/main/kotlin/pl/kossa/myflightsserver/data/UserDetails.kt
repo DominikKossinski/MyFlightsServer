@@ -2,6 +2,7 @@ package pl.kossa.myflightsserver.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import pl.kossa.myflightsserver.data.models.Image
+import pl.kossa.myflightsserver.data.models.Language
 import pl.kossa.myflightsserver.data.models.ProviderType
 
 data class UserDetails(
@@ -12,5 +13,6 @@ data class UserDetails(
     val nick: String?,
     val avatar: Image?,
     val regulationsAccepted: Boolean,
-    val providerType: ProviderType
+    val providerType: ProviderType,
+    val language: Language
 )
