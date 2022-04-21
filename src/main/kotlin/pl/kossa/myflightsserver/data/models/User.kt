@@ -36,3 +36,9 @@ enum class ProviderType {
 
     }
 }
+
+enum class Language {
+    ENGLISH,
+    GERMAN,
+    POLISH
+}

@@ -2,10 +2,12 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.LocaleResolver
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.models.SharedFlight
 import pl.kossa.myflightsserver.data.responses.SharedFlightJoinDetails
@@ -34,6 +36,8 @@ class SharedFlightsRestController : BaseRestController() {
     @Autowired
     private lateinit var threadPoolTaskScheduler: ThreadPoolTaskScheduler
 
+    @Autowired
+    private lateinit var localeResolver: LocaleResolver
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getSharedFlights(): List<SharedFlight> {
@@ -112,9 +116,10 @@ class SharedFlightsRestController : BaseRestController() {
         )
     }
 
+
     @PostMapping("/share/{flightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun postSharedFlight(@PathVariable("flightId") flightId: String): SharedFlight {
+    suspend fun postSharedFlight(@PathVariable("flightId") flightId: String, locale: Locale): SharedFlight {
         val user = getUserDetails()
         flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")
@@ -150,7 +155,7 @@ class SharedFlightsRestController : BaseRestController() {
 
     @PutMapping("/confirm/{sharedFlightId}", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun postSharedFlightConfirmation(@PathVariable("sharedFlightId") sharedFlightId: String) {
+    suspend fun postSharedFlightConfirmation(@PathVariable("sharedFlightId") sharedFlightId: String, locale: Locale) {
         val user = getUserDetails()
         val sharedFlight =
             service.getSharedFlightByOwnerIdAndSharedFlightId(user.uid, sharedFlightId) ?: throw NotFoundException(
@@ -160,7 +165,12 @@ class SharedFlightsRestController : BaseRestController() {
         if (sharedFlight.isConfirmed) {
             throw AlreadyConfirmedException(sharedFlightId)
         }
-        firebaseMessagingService.sendSharedFlightConfirmationMessage(sharedFlight.sharedUserId, sharedFlight.flightId)
+        logger.info("Locale: ${LocaleContextHolder.getLocale()}")
+        firebaseMessagingService.sendSharedFlightConfirmationMessage(
+            sharedFlight.sharedUserId,
+            sharedFlight.flightId,
+            locale
+        )
         service.save(sharedFlight.copy(isConfirmed = true))
     }
 
