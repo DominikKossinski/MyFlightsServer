@@ -57,7 +57,7 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = ForbiddenError::class))]
         )]
     )
-    suspend fun getUserFlights(locale: Locale): List<FlightResponse> {
+    suspend fun getUserFlights(locale: Locale = Locale.US): List<FlightResponse> {
         val user = getUserDetails(locale)
         val userFlights = flightsService.getFlightsByUserIdAndPlanned(user.uid, false)
         val sharedFlights = sharedFlightsService.getSharedFlightsBySharedUserId(user.uid).mapNotNull {
@@ -98,7 +98,7 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = ForbiddenError::class))]
         )]
     )
-    suspend fun getUserPlannedFlights(locale: Locale): List<FlightResponse> {
+    suspend fun getUserPlannedFlights(locale: Locale = Locale.US): List<FlightResponse> {
         val user = getUserDetails(locale)
         val userFlights = flightsService.getFlightsByUserIdAndPlanned(user.uid, true)
         val sharedFlights = sharedFlightsService.getSharedFlightsBySharedUserId(user.uid).mapNotNull {
@@ -143,7 +143,7 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun getFlightById(@PathVariable("flightId") flightId: String, locale: Locale): FlightResponse {
+    suspend fun getFlightById(@PathVariable("flightId") flightId: String, locale: Locale = Locale.US): FlightResponse {
         val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
             ?: sharedFlightsService.getSharedFlightBySharedUserIdAndFlightId(user.uid, flightId)?.let {
@@ -184,7 +184,7 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun postFlight(@RequestBody flightRequest: FlightRequest, locale: Locale): CreatedResponse {
+    suspend fun postFlight(@RequestBody flightRequest: FlightRequest, locale: Locale = Locale.US): CreatedResponse {
         val user = getUserDetails(locale)
         val flight = validateFlightRequest(flightRequest, user)
         val flightAdded = flightsService.saveFlight(flight)
@@ -213,7 +213,7 @@ class FlightsRestController : BaseRestController() {
     suspend fun putFlight(
         @PathVariable("flightId") flightId: String,
         @RequestBody flightRequest: FlightRequest,
-        locale: Locale
+        locale: Locale = Locale.US
     ) {
         val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
@@ -242,7 +242,7 @@ class FlightsRestController : BaseRestController() {
             content = [Content(schema = Schema(implementation = NotFoundError::class))]
         )]
     )
-    suspend fun deleteFlight(@PathVariable("flightId") flightId: String, locale: Locale) {
+    suspend fun deleteFlight(@PathVariable("flightId") flightId: String, locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
         val flight = flightsService.getFlightById(user.uid, flightId)
             ?: throw NotFoundException("Flight with id '$flightId' not found.")

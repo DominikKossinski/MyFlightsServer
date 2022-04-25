@@ -58,7 +58,7 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUser(locale: Locale): UserDetails {
+    suspend fun getUser(locale: Locale = Locale.US): UserDetails {
         return getUserDetails(locale)
     }
 
@@ -80,7 +80,7 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putUser(@Valid @RequestBody userRequest: UserRequest, locale: Locale) {
+    suspend fun putUser(@Valid @RequestBody userRequest: UserRequest, locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
         val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
         if (userRequest.imageId == null && user.avatar != null) {
@@ -127,7 +127,7 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteUser(locale: Locale) {
+    suspend fun deleteUser(locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
 
         flightsService.deleteAllByUserId(user.uid)
@@ -158,7 +158,7 @@ class UsersRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest, locale: Locale) {
+    suspend fun putUserFCMToken(@RequestBody fcmTokenRequest: FCMTokenRequest, locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
         val dbUser = usersService.getUserById(user.uid) ?: throw NotFoundException("User with '${user.uid}' not found.")
         val newUser = dbUser.copy()
@@ -167,14 +167,4 @@ class UsersRestController : BaseRestController() {
         }
         usersService.saveUser(newUser)
     }
-
-//    @DeleteMapping("avatar")
-//    suspend fun deleteUserAvatar() {
-//        val user = getUserDetails()
-//        user.avatar?.let {
-//            deleteImage(it)
-//            val userEntity = usersService.getUserById(user.uid)
-//            userEntity?.let { usersService.saveUser(userEntity.copy(avatar = null)) }
-//        }
-//    }
 }

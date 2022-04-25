@@ -58,7 +58,7 @@ class StatisticsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getUserStats(locale: Locale): StatisticsResponse {
+    suspend fun getUserStats(locale: Locale = Locale.US): StatisticsResponse {
         val user = getUserDetails(locale)
         val flights = flightsService.getFlightsByUserId(user.uid)
         val flightHours = flights.map {

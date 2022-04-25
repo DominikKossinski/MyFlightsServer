@@ -59,7 +59,7 @@ class RunwaysRestController : BaseRestController() {
         ]
     )
     suspend fun getRunwayById(
-        @PathVariable("runwayId") runwayId: String, locale: Locale
+        @PathVariable("runwayId") runwayId: String, locale: Locale = Locale.US
     ): Runway {
         val user = getUserDetails(locale)
         return runwaysService.getRunwayById(user.uid, runwayId)
@@ -89,7 +89,7 @@ class RunwaysRestController : BaseRestController() {
     suspend fun postRunway(
         @PathVariable("airportId") airportId: String,
         @RequestBody @Valid runwayRequest: RunwayRequest,
-        locale: Locale
+        locale: Locale = Locale.US
     ): CreatedResponse {
         val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
@@ -131,7 +131,7 @@ class RunwaysRestController : BaseRestController() {
         @PathVariable("airportId") airportId: String,
         @PathVariable("runwayId") runwayId: String,
         @RequestBody @Valid runwayRequest: RunwayRequest,
-        locale: Locale
+        locale: Locale = Locale.US
     ) {
         val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
@@ -168,7 +168,9 @@ class RunwaysRestController : BaseRestController() {
         ]
     )
     suspend fun deleteRunway(
-        @PathVariable("airportId") airportId: String, @PathVariable("runwayId") runwayId: String, locale: Locale
+        @PathVariable("airportId") airportId: String,
+        @PathVariable("runwayId") runwayId: String,
+        locale: Locale = Locale.US
     ) {
         val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)

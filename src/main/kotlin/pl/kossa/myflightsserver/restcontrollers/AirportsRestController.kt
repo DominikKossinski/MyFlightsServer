@@ -59,7 +59,7 @@ class AirportsRestController : BaseRestController() {
             defaultValue = "",
             required = false
         ) filter: String,
-        locale: Locale
+        locale: Locale = Locale.US
     ): List<Airport> {
         val user = getUserDetails(locale)
         return airportsService.getAirportsByUserId(user.uid, filter)
@@ -86,7 +86,7 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getAirportById(@PathVariable("airportId") airportId: String, locale: Locale): Airport {
+    suspend fun getAirportById(@PathVariable("airportId") airportId: String, locale: Locale = Locale.US): Airport {
         val user = getUserDetails(locale)
         return airportsService.getAirportById(user.uid, airportId)
     }
@@ -108,7 +108,10 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirport(@RequestBody @Valid airportRequest: AirportRequest, locale: Locale): CreatedResponse {
+    suspend fun postAirport(
+        @RequestBody @Valid airportRequest: AirportRequest,
+        locale: Locale = Locale.US
+    ): CreatedResponse {
         val user = getUserDetails(locale)
         val image = airportRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val airport =
@@ -145,7 +148,7 @@ class AirportsRestController : BaseRestController() {
     suspend fun putAirport(
         @PathVariable("airportId") airportId: String,
         @RequestBody @Valid airportRequest: AirportRequest,
-        locale: Locale
+        locale: Locale = Locale.US
     ) {
         val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
@@ -178,7 +181,7 @@ class AirportsRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteAirport(@PathVariable("airportId") airportId: String, locale: Locale) {
+    suspend fun deleteAirport(@PathVariable("airportId") airportId: String, locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
         val airport = airportsService.getAirportById(user.uid, airportId)
         val flights = flightsService.getFlightsByUserId(user.uid).filter {

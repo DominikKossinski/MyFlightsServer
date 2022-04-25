@@ -55,7 +55,7 @@ class AirplanesRestController : BaseRestController() {
             defaultValue = "",
             required = false
         ) filter: String,
-        locale: Locale
+        locale: Locale = Locale.US
     ): List<Airplane> {
         val user = getUserDetails(locale)
         return airplanesService.getAirplanesByUserId(user.uid, filter.lowercase())
@@ -82,7 +82,7 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun getAirplaneById(@PathVariable("airplaneId") airplaneId: String, locale: Locale): Airplane {
+    suspend fun getAirplaneById(@PathVariable("airplaneId") airplaneId: String, locale: Locale = Locale.US): Airplane {
         val user = getUserDetails(locale)
         return airplanesService.getAirplaneById(user.uid, airplaneId)
     }
@@ -104,7 +104,10 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun postAirplane(@RequestBody @Valid airplaneRequest: AirplaneRequest, locale: Locale): CreatedResponse {
+    suspend fun postAirplane(
+        @RequestBody @Valid airplaneRequest: AirplaneRequest,
+        locale: Locale = Locale.US
+    ): CreatedResponse {
         val user = getUserDetails(locale)
         val image = airplaneRequest.imageId?.let { imagesService.getImageById(user.uid, it) }
         val airplane = Airplane(
@@ -147,7 +150,7 @@ class AirplanesRestController : BaseRestController() {
     )
     suspend fun putAirplane(
         @PathVariable("airplaneId") airplaneId: String,
-        @RequestBody @Valid airplaneRequest: AirplaneRequest, locale: Locale
+        @RequestBody @Valid airplaneRequest: AirplaneRequest, locale: Locale = Locale.US
     ) {
         val user = getUserDetails(locale)
         val airplane = airplanesService.getAirplaneById(user.uid, airplaneId)
@@ -187,7 +190,7 @@ class AirplanesRestController : BaseRestController() {
             )
         ]
     )
-    suspend fun deleteAirplane(@PathVariable("airplaneId") airplaneId: String, locale: Locale) {
+    suspend fun deleteAirplane(@PathVariable("airplaneId") airplaneId: String, locale: Locale = Locale.US) {
         val user = getUserDetails(locale)
         val flights = flightsService.getFlightsByUserId(user.uid).filter {
             it.airplane.airplaneId == airplaneId
