@@ -191,15 +191,15 @@ class FlightsRestControllerTests {
     @Test
     @Order(5)
     fun getFlight() = runTest {
-        val flight = flightsRestController.getFlightById(flightId)
-        checkFlights(flight, flightToPost, true)
+        val flightResponse = flightsRestController.getFlightById(flightId)
+        checkFlights(flightResponse.flight, flightToPost, true)
     }
 
     @Test
     @Order(6)
     fun getFlightsByUser() = runTest {
-        val flights = flightsRestController.getUserFlights()
-        checkFlights(flights[0], flightToPost, true)
+        val flightResponses = flightsRestController.getUserFlights()
+        checkFlights(flightResponses[0].flight, flightToPost, true)
     }
 
     @Test
@@ -214,8 +214,8 @@ class FlightsRestControllerTests {
                 departureAirportId, departureRunwayId, false
             )
         )
-        val flight = flightsRestController.getFlightById(flightId)
-        checkFlights(flight, flightToPut, false)
+        val flightResponse = flightsRestController.getFlightById(flightId)
+        checkFlights(flightResponse.flight, flightToPut, false)
     }
 
 

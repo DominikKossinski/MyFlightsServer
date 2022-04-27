@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
-import javax.validation.constraints.Past
 import javax.validation.constraints.Size
 
 @Document
@@ -25,10 +24,8 @@ data class Flight(
     @DBRef
     val image: Image?,
 
-    @Past
     val departureDate: Date,
 
-    @Past
     val arrivalDate: Date,
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
