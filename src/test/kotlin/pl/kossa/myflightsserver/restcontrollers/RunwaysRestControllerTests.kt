@@ -2,9 +2,9 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +37,7 @@ class RunwaysRestControllerTests {
     private val airport = Airport("1", "Okęcie", "Warsaw", "EPWA", "119.50", "119.00", null, HashSet(), "1")
     private var airportId = ""
     private var runwayId = ""
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = StandardTestDispatcher()
 
     @BeforeAll
     fun setup() {
@@ -47,90 +47,79 @@ class RunwaysRestControllerTests {
     @AfterAll
     fun clear() {
         Dispatchers.resetMain()
-        testCoroutineDispatcher.cleanupTestCoroutines()
     }
 
     @Test
     @Order(1)
-    fun addAirport() {
-        runBlockingTest {
-            val response = airportsRestController.postAirport(
-                AirportRequest(
-                    airport.name,
-                    airport.city,
-                    airport.icaoCode,
-                    airport.towerFrequency,
-                    airport.groundFrequency,
-                    airport.image?.imageId
-                )
+    fun addAirport() = runTest {
+        val response = airportsRestController.postAirport(
+            AirportRequest(
+                airport.name,
+                airport.city,
+                airport.icaoCode,
+                airport.towerFrequency,
+                airport.groundFrequency,
+                airport.image?.imageId
             )
-            airportId = response.entityId
-        }
+        )
+        airportId = response.entityId
     }
 
 
     @Test
     @Order(2)
-    fun postRunway() {
-        runBlockingTest {
-            val response = runwaysRestController.postRunway(
-                airportId,
-                RunwayRequest(
-                    runwayToPost.name,
-                    runwayToPost.length,
-                    runwayToPost.heading,
-                    runwayToPost.ilsFrequency,
-                    runwayToPost.image?.imageId
-                )
+    fun postRunway() = runTest {
+        val response = runwaysRestController.postRunway(
+            airportId,
+            RunwayRequest(
+                runwayToPost.name,
+                runwayToPost.length,
+                runwayToPost.heading,
+                runwayToPost.ilsFrequency,
+                runwayToPost.image?.imageId
             )
-            runwayId = response.entityId
-        }
+        )
+        runwayId = response.entityId
     }
 
     @Test
     @Order(3)
-    fun getRunway() {
-        runBlockingTest {
-            val response = runwaysRestController.getRunwayById(runwayId)
-            checkRunways(response, runwayToPost)
-        }
+    fun getRunway() = runTest {
+        val response = runwaysRestController.getRunwayById(runwayId)
+        checkRunways(response, runwayToPost)
     }
 
     @Test
     @Order(4)
-    fun putRunway() {
-        runBlockingTest {
-            runwaysRestController.putRunway(
-                airportId,
-                runwayId,
-                RunwayRequest(
-                    runwayToPut.name,
-                    runwayToPut.length,
-                    runwayToPut.heading,
-                    runwayToPut.ilsFrequency,
-                    runwayToPut.image?.imageId
-                )
+    fun putRunway() = runTest {
+        runwaysRestController.putRunway(
+            airportId,
+            runwayId,
+            RunwayRequest(
+                runwayToPut.name,
+                runwayToPut.length,
+                runwayToPut.heading,
+                runwayToPut.ilsFrequency,
+                runwayToPut.image?.imageId
             )
-        }
+        )
     }
+
 
     @Test
     @Order(5)
-    fun deleteRunway() {
-        runBlockingTest {
+    fun deleteRunway() = runTest {
+        runwaysRestController.deleteRunway(airportId, runwayId)
+        assertThrows<NotFoundException> {
             runwaysRestController.deleteRunway(airportId, runwayId)
-            assertThrows<NotFoundException> {
-                runwaysRestController.deleteRunway(airportId, runwayId)
-            }
         }
     }
 
+
     @Test
     @Order(6)
-    fun deleteAirport() {
-        runBlockingTest {
-            airportsRestController.deleteAirport(airportId)
-        }
+    fun deleteAirport() = runTest {
+        airportsRestController.deleteAirport(airportId)
     }
 
     private fun checkRunways(runway: Runway, checkRunway: Runway) {

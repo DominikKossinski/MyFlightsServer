@@ -2,9 +2,9 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +26,7 @@ class UsersRestControllerTests {
     @Autowired
     private lateinit var usersRestController: UsersRestController
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = StandardTestDispatcher()
 
     @BeforeAll
     fun setup() {
@@ -36,32 +36,27 @@ class UsersRestControllerTests {
     @AfterAll
     fun clear() {
         Dispatchers.resetMain()
-        testCoroutineDispatcher.cleanupTestCoroutines()
     }
 
 
     @Test
     @Order(1)
-    fun getUser() {
-        runBlockingTest {
-            val user = usersRestController.getUser()
-            assert(user.isEmailVerified)
-            assert(user.email == "test@test.pl")
-            assert(user.nick == "Test")
-            assert(user.avatar == null)
-        }
+    fun getUser() = runTest {
+        val user = usersRestController.getUser()
+        assert(user.isEmailVerified)
+        assert(user.email == "test@test.pl")
+        assert(user.nick == "Test")
+        assert(user.avatar == null)
     }
 
     @Test
     @Order(2)
-    fun putUser() {
-        runBlockingTest {
-            usersRestController.putUser(UserRequest("NewNick", null, true))
-            val user = usersRestController.getUser()
-            assert(user.isEmailVerified)
-            assert(user.email == "test@test.pl")
-            assert(user.nick == "NewNick")
-            assert(user.avatar == null)
-        }
+    fun putUser() = runTest {
+        usersRestController.putUser(UserRequest("NewNick", null, true))
+        val user = usersRestController.getUser()
+        assert(user.isEmailVerified)
+        assert(user.email == "test@test.pl")
+        assert(user.nick == "NewNick")
+        assert(user.avatar == null)
     }
 }
