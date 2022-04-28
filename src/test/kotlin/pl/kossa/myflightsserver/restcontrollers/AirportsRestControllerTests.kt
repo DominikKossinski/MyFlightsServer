@@ -2,9 +2,9 @@ package pl.kossa.myflightsserver.restcontrollers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,7 @@ class AirportsRestControllerTests {
     private val airportToPost = Airport("1", "Okencie", "Warsaw", "EPWA", "119.50", "119.00", null, HashSet(), "1")
     private val airportToPut = Airport("1", "Katowice", "Ktowice", "EPKT", "118.50", "121.00", null, HashSet(), "1")
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineDispatcher = StandardTestDispatcher()
 
     @BeforeAll
     fun setup() {
@@ -41,92 +41,77 @@ class AirportsRestControllerTests {
     @AfterAll
     fun clear() {
         Dispatchers.resetMain()
-        testCoroutineDispatcher.cleanupTestCoroutines()
     }
 
     @Test
     @Order(1)
-    fun noAirportsOnStart() {
-        runBlockingTest {
-            val airports = airportRestController.getUserAirports("")
-            assert(airports.isEmpty())
-        }
+    fun noAirportsOnStart() = runTest {
+        val airports = airportRestController.getUserAirports("")
+        assert(airports.isEmpty())
     }
 
     @Test
     @Order(2)
-    fun airportNotFound() {
-        runBlockingTest {
-            assertThrows<NotFoundException> {
-                airportRestController.getAirportById("1")
-            }
+    fun airportNotFound() = runTest {
+        assertThrows<NotFoundException> {
+            airportRestController.getAirportById("1")
         }
     }
 
     @Test
     @Order(3)
-    fun postAirport() {
-        runBlockingTest {
-            val response = airportRestController.postAirport(
-                AirportRequest(
-                    airportToPost.name,
-                    airportToPost.city,
-                    airportToPost.icaoCode,
-                    airportToPost.towerFrequency,
-                    airportToPost.groundFrequency,
-                    airportToPost.image?.imageId
-                )
+    fun postAirport() = runTest {
+        val response = airportRestController.postAirport(
+            AirportRequest(
+                airportToPost.name,
+                airportToPost.city,
+                airportToPost.icaoCode,
+                airportToPost.towerFrequency,
+                airportToPost.groundFrequency,
+                airportToPost.image?.imageId
             )
-            airportId = response.entityId
-        }
+        )
+        airportId = response.entityId
     }
 
     @Test
     @Order(4)
-    fun getAirport() {
-        runBlockingTest {
-            val airport = airportRestController.getAirportById(airportId)
-            checkAirports(airport, airportToPost)
-        }
+    fun getAirport() = runTest {
+        val airport = airportRestController.getAirportById(airportId)
+        checkAirports(airport, airportToPost)
     }
 
     @Test
     @Order(5)
-    fun getUserAirport() {
-        runBlockingTest {
-            val airports = airportRestController.getUserAirports("")
-            checkAirports(airports[0], airportToPost)
-        }
+    fun getUserAirport() = runTest {
+        val airports = airportRestController.getUserAirports("")
+        checkAirports(airports[0], airportToPost)
     }
 
     @Test
     @Order(6)
-    fun putAirport() {
-        runBlockingTest {
-            airportRestController.putAirport(
-                airportId,
-                AirportRequest(
-                    airportToPut.name,
-                    airportToPut.city,
-                    airportToPut.icaoCode,
-                    airportToPut.towerFrequency,
-                    airportToPut.groundFrequency,
-                    airportToPut.image?.imageId
-                )
+    fun putAirport() = runTest {
+        airportRestController.putAirport(
+            airportId,
+            AirportRequest(
+                airportToPut.name,
+                airportToPut.city,
+                airportToPut.icaoCode,
+                airportToPut.towerFrequency,
+                airportToPut.groundFrequency,
+                airportToPut.image?.imageId
             )
-            val airport = airportRestController.getAirportById(airportId)
-            checkAirports(airport, airportToPut)
-        }
+        )
+        val airport = airportRestController.getAirportById(airportId)
+        checkAirports(airport, airportToPut)
     }
 
     @Test
     @Order(7)
-    fun deleteAirport() {
-        runBlockingTest {
+    fun deleteAirport() = runTest {
+        airportRestController.deleteAirport(airportId)
+        assertThrows<NotFoundException> {
             airportRestController.deleteAirport(airportId)
-            assertThrows<NotFoundException> {
-                airportRestController.deleteAirport(airportId)
-            }
         }
     }
 
