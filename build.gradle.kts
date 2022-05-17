@@ -20,24 +20,24 @@ dependencies {
     implementation("com.google.firebase:firebase-admin:8.1.0")
 
     //Spring
-    implementation("org.springframework.boot:spring-boot-starter-web:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.6")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.7")
 
     //Validation
     implementation("javax.validation:validation-api:2.0.1.Final")
 
     //Mongo
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.6.6")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.6.7")
 
     //Swagger
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.7")
-    implementation("org.springdoc:springdoc-openapi-data-rest:1.6.7")
-    implementation("org.springdoc:springdoc-openapi-security:1.6.7")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.7")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.8")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.6.8")
+    implementation("org.springdoc:springdoc-openapi-security:1.6.8")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.8")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
     //Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -47,7 +47,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1-native-mt")
 
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.5") {
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
