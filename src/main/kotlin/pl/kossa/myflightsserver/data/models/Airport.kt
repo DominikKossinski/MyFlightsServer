@@ -1,6 +1,5 @@
 package pl.kossa.myflightsserver.data.models
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
@@ -26,6 +25,5 @@ data class Airport(
     @DBRef
     val runways: HashSet<Runway>,
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val userId: String
 )

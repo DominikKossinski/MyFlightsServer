@@ -3,8 +3,9 @@
 ![AutoBuildWorkflow](https://github.com/DominikKossinski/MyFlightsServer/actions/workflows/auto-build.yml/badge.svg?branch=dev)
 
 Server for Android application, that allows saving airplanes and airports. Then it is possible to store information
-about flights between two airports using selected
-airplane. [Android application repository](http://github.com/DominikKossinski/MyFLights)
+about flights between two airports using selected airplane. The project supports multiple languages of application
+users.
+[Android application repository](http://github.com/DominikKossinski/MyFLights)
 
 ## Firebase
 
