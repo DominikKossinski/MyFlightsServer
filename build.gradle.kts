@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.5"
-    id("io.spring.dependency-management") version "1.0.10.RELEASE"
-    kotlin("jvm") version "1.6.20"
-    kotlin("plugin.spring") version "1.6.0-M1"
+    id("org.springframework.boot") version "2.7.0"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    kotlin("jvm") version "1.7.0"
+    kotlin("plugin.spring") version "1.7.0"
 }
 
 group = "pl.kossa"
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     //Firebase
-    implementation("com.google.firebase:firebase-admin:8.1.0")
+    implementation("com.google.firebase:firebase-admin:8.2.0")
 
     //Spring
     implementation("org.springframework.boot:spring-boot-starter-web:2.6.7")
