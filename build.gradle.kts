@@ -17,19 +17,19 @@ repositories {
 
 dependencies {
     //Firebase
-    implementation("com.google.firebase:firebase-admin:8.2.0")
+    implementation("com.google.firebase:firebase-admin:9.0.0")
 
     //Spring
-    implementation("org.springframework.boot:spring-boot-starter-web:2.7.0")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.7.0")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.7.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.7.2")
 
     //Validation
     implementation("javax.validation:validation-api:2.0.1.Final")
 
     //Mongo
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.7.0")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.7.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.7.2")
 
     //Swagger
     implementation("org.springdoc:springdoc-openapi-ui:1.6.9")
@@ -42,12 +42,12 @@ dependencies {
     //Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
 
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.0") {
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.2") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
