@@ -6,11 +6,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import pl.kossa.myflightsserver.config.security.SecurityService
 import pl.kossa.myflightsserver.data.UserDetails
-import pl.kossa.myflightsserver.data.models.Image
-import pl.kossa.myflightsserver.data.models.Language
-import pl.kossa.myflightsserver.data.models.User
+import pl.kossa.myflightsserver.data.models.*
 import pl.kossa.myflightsserver.exceptions.UnauthorizedException
 import pl.kossa.myflightsserver.services.ImagesService
+import pl.kossa.myflightsserver.services.SharingSettingsService
 import pl.kossa.myflightsserver.services.UsersService
 import java.util.*
 
@@ -29,6 +28,9 @@ abstract class BaseRestController {
 
     @Autowired
     protected lateinit var storageOptions: StorageOptions
+
+    @Autowired
+    protected lateinit var sharingSettingsService: SharingSettingsService
 
 
     protected suspend fun getUserDetails(locale: Locale): UserDetails {
@@ -51,6 +53,15 @@ abstract class BaseRestController {
                     regulationsAccepted,
                     user.providerType,
                     language
+                )
+            )
+            sharingSettingsService.save(
+                SharingSettings(
+                    user.uid,
+                    SharingMode.PRIVATE,
+                    SharingMode.PRIVATE,
+                    SharingMode.PRIVATE,
+                    SharingMode.PRIVATE
                 )
             )
             return UserDetails(
