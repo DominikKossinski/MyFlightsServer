@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
-import pl.kossa.myflightsserver.data.models.SharingMode
 import pl.kossa.myflightsserver.data.models.SharingSettings
 import pl.kossa.myflightsserver.data.requests.SharingSettingsRequest
 import pl.kossa.myflightsserver.errors.ForbiddenError
@@ -22,16 +21,7 @@ class SettingsRestController : BaseRestController() {
     @GetMapping("sharing", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getSharingSettings(locale: Locale = Locale.US): SharingSettings {
         val user = getUserDetails(locale)
-        val sharingSettings = sharingSettingsService.findByUserId(user.uid)
-        return sharingSettings ?: sharingSettingsService.save(
-            SharingSettings(
-                user.uid,
-                SharingMode.PRIVATE,
-                SharingMode.PRIVATE,
-                SharingMode.PRIVATE,
-                SharingMode.PRIVATE
-            )
-        )
+        return sharingSettingsService.findByUserId(user.uid)
     }
 
     @PutMapping("sharing", consumes = [MediaType.APPLICATION_JSON_VALUE])
