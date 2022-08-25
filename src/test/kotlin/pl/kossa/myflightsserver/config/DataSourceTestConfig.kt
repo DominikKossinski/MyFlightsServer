@@ -95,4 +95,19 @@ class DataSourceTestConfig {
     fun sharedFlightsService(): SharedFlightsService {
         return SharedFlightsService()
     }
+
+    @Bean
+    fun sharingSettingsRepository(): SharingSettingsRepository {
+        return SharingSettingsRepositoryMock()
+    }
+
+    @Bean
+    fun sharingSettingsService(): SharingSettingsService {
+        return SharingSettingsService()
+    }
+
+    @Bean
+    fun statisticsService(): StatisticsService {
+        return StatisticsService()
+    }
 }
