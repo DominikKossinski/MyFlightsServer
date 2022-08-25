@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*
 import pl.kossa.myflightsserver.architecture.BaseRestController
 import pl.kossa.myflightsserver.data.UserDetails
 import pl.kossa.myflightsserver.data.models.Flight
+import pl.kossa.myflightsserver.data.models.SharingMode
 import pl.kossa.myflightsserver.data.requests.FlightRequest
+import pl.kossa.myflightsserver.data.responses.CopilotResponse
 import pl.kossa.myflightsserver.data.responses.CreatedResponse
 import pl.kossa.myflightsserver.data.responses.flights.FlightResponse
 import pl.kossa.myflightsserver.data.responses.flights.ShareData
@@ -23,10 +25,7 @@ import pl.kossa.myflightsserver.exceptions.ArrivalTimeException
 import pl.kossa.myflightsserver.exceptions.FlightTimeException
 import pl.kossa.myflightsserver.exceptions.NotFoundException
 import pl.kossa.myflightsserver.exceptions.PlannedFlightTimeException
-import pl.kossa.myflightsserver.services.AirplanesService
-import pl.kossa.myflightsserver.services.AirportsService
-import pl.kossa.myflightsserver.services.FlightsService
-import pl.kossa.myflightsserver.services.SharedFlightsService
+import pl.kossa.myflightsserver.services.*
 import java.util.*
 
 @RestController
@@ -45,6 +44,10 @@ class FlightsRestController : BaseRestController() {
     @Autowired
     lateinit var sharedFlightsService: SharedFlightsService
 
+    @Autowired
+    lateinit var statisticsService: StatisticsService
+
+    // TODO refactor common parts of get requests
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @ApiResponses(
         value = [ApiResponse(responseCode = "200"), ApiResponse(
@@ -70,16 +73,26 @@ class FlightsRestController : BaseRestController() {
             val sharedUserList = sharedFlightsList.map {
                 val sharedUser = it.sharedUserId?.let { sdUId -> usersService.getUserById(sdUId) }
                 val sharedUserData = sharedUser?.let { sd ->
+                    val sharingSettings = sharingSettingsService.findByUserId(sd.userId)
                     SharedUserData(
-                        sd.userId, sd.email, sd.nick, sd.avatar
+                        sd.userId,
+                        if (sharingSettings.emailSharingMode == SharingMode.PRIVATE) null else sd.email,
+                        sd.nick,
+                        sd.avatar
                     )
                 }
                 ShareData(
                     it.sharedFlightId, sharedUserData, it.isConfirmed
                 )
             }
+            val ownerSettings = sharingSettingsService.findByUserId(flight.userId)
             val ownerData = usersService.getUserById(flight.userId)?.let {
-                SharedUserData(it.userId, it.email, it.nick, it.avatar)
+                SharedUserData(
+                    it.userId,
+                    if (ownerSettings.emailSharingMode == SharingMode.PRIVATE) null else it.email,
+                    it.nick,
+                    it.avatar
+                )
             } ?: throw NotFoundException("Owner not found")
             FlightResponse(flight, ownerData, sharedUserList)
         }
@@ -111,16 +124,26 @@ class FlightsRestController : BaseRestController() {
             val sharedUserList = sharedFlightsList.map {
                 val sharedUser = it.sharedUserId?.let { sdUId -> usersService.getUserById(sdUId) }
                 val sharedUserData = sharedUser?.let { sd ->
+                    val sharingSettings = sharingSettingsService.findByUserId(sd.userId)
                     SharedUserData(
-                        sd.userId, sd.email, sd.nick, sd.avatar
+                        sd.userId,
+                        if (sharingSettings.emailSharingMode == SharingMode.PRIVATE) null else sd.email,
+                        sd.nick,
+                        sd.avatar
                     )
                 }
                 ShareData(
                     it.sharedFlightId, sharedUserData, it.isConfirmed
                 )
             }
+            val ownerSettings = sharingSettingsService.findByUserId(flight.userId)
             val ownerData = usersService.getUserById(flight.userId)?.let {
-                SharedUserData(it.userId, it.email, it.nick, it.avatar)
+                SharedUserData(
+                    it.userId,
+                    if (ownerSettings.emailSharingMode == SharingMode.PRIVATE) null else it.email,
+                    it.nick,
+                    it.avatar
+                )
             } ?: throw NotFoundException("Owner not found")
             FlightResponse(flight, ownerData, sharedUserList)
         }
@@ -153,16 +176,26 @@ class FlightsRestController : BaseRestController() {
         val sharedUserList = sharedFlights.map {
             val sharedUser = it.sharedUserId?.let { sdUId -> usersService.getUserById(sdUId) }
             val sharedUserData = sharedUser?.let { sd ->
+                val sharingSettings = sharingSettingsService.findByUserId(sd.userId)
                 SharedUserData(
-                    sd.userId, sd.email, sd.nick, sd.avatar
+                    sd.userId,
+                    if (sharingSettings.emailSharingMode == SharingMode.PRIVATE) null else sd.email,
+                    sd.nick,
+                    sd.avatar
                 )
             }
             ShareData(
                 it.sharedFlightId, sharedUserData, it.isConfirmed
             )
         }
+        val ownerSettings = sharingSettingsService.findByUserId(flight.userId)
         val ownerData = usersService.getUserById(flight.userId)?.let {
-            SharedUserData(it.userId, it.email, it.nick, it.avatar)
+            SharedUserData(
+                it.userId,
+                if (ownerSettings.emailSharingMode == SharingMode.PRIVATE) null else it.email,
+                it.nick,
+                it.avatar
+            )
         } ?: throw NotFoundException("Owner not found")
         return FlightResponse(flight, ownerData, sharedUserList)
     }
@@ -300,6 +333,51 @@ class FlightsRestController : BaseRestController() {
             arrivalAirport,
             arrivalRunway,
             flightRequest.isPlanned
+        )
+    }
+
+    @GetMapping("/{flightId}/co-pilot/{userId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ApiResponses(
+        value = [ApiResponse(responseCode = "200"), ApiResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content = [Content(schema = Schema(implementation = UnauthorizedError::class))]
+        ), ApiResponse(
+            responseCode = "403",
+            description = "Forbidden",
+            content = [Content(schema = Schema(implementation = ForbiddenError::class))]
+        ), ApiResponse(
+            responseCode = "404",
+            description = "Not found",
+            content = [Content(schema = Schema(implementation = NotFoundError::class))]
+        )]
+    )
+    suspend fun getFlightById(
+        @PathVariable("flightId") flightId: String,
+        @PathVariable("userId") userId: String,
+        locale: Locale = Locale.US
+    ): CopilotResponse {
+        val user = getUserDetails(locale)
+        val flight = flightsService.getFlightById(user.uid, flightId)
+            ?: sharedFlightsService.getSharedFlightBySharedUserIdAndFlightId(user.uid, flightId)?.let {
+                flightsService.getFlightById(it.ownerId, flightId)
+            } ?: throw NotFoundException("Flight with id '$flightId' not found.")
+        val sharedFlights = sharedFlightsService.getSharedFlightsByOwnerIdAndFlightId(flight.userId, flightId)
+        sharedFlights.find { it.sharedUserId == userId } ?: throw Exception() // TODO
+        val sharingSettings = sharingSettingsService.findByUserId(userId)
+        val userData = usersService.getUserById(userId) ?: throw Exception() // TODO
+        val statistics = statisticsService.getUserStatistics(userId)
+        return CopilotResponse(
+            SharedUserData(
+                userData.userId,
+                if (sharingSettings.emailSharingMode == SharingMode.PRIVATE) null else userData.email,
+                userData.nick,
+                userData.avatar
+            ),
+            if (sharingSettings.flightHoursSharingMode == SharingMode.PRIVATE) null else statistics.flightHours,
+            if (sharingSettings.favouriteAirplaneSharingMode == SharingMode.PRIVATE) null else statistics.favouriteAirplane,
+            if (sharingSettings.favouriteAirportsSharingMode == SharingMode.PRIVATE) null else statistics.favouriteDepartureAirport,
+            if (sharingSettings.favouriteAirportsSharingMode == SharingMode.PRIVATE) null else statistics.favouriteArrivalAirport
         )
     }
 }
